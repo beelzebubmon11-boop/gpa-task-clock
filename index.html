@@ -43,8 +43,26 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .cal-day:hover{background:#334155}.cal-day.today{background:#38bdf8;color:#0f172a;font-weight:700}
 .cal-day.has-task::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;background:#f59e0b;border-radius:50%}
 .cal-day.today.has-task::after{background:#0f172a}.cal-day.empty{pointer-events:none}.cal-day.sunday{color:#f87171}
+.cal-day.selected{background:#818cf8;color:#fff;font-weight:700}
+.cal-day.selected.today{background:linear-gradient(135deg,#38bdf8,#818cf8)}
 .monthly-detail{background:#0f172a;border-radius:12px;padding:16px;margin-top:12px}
 .monthly-detail h3{font-size:14px;color:#38bdf8;margin-bottom:10px}
+.day-detail-group{margin-bottom:12px}
+.day-detail-group-title{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.day-detail-group-title .dg-icon{font-size:13px}
+.day-detail-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#1e293b;border-radius:8px;margin-bottom:4px;font-size:13px;transition:all .15s}
+.day-detail-item.item-checked{opacity:.5}
+.day-detail-item.item-checked .ddi-name{text-decoration:line-through}
+.ddi-check{width:16px;height:16px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px}
+.ddi-check.checked{background:#38bdf8;color:#0f172a}.ddi-check.unchecked{border:2px solid #475569}
+.ddi-name{flex:1;color:#e2e8f0}.ddi-time{font-size:10px;color:#64748b;flex-shrink:0}
+.ddi-type{font-size:9px;padding:1px 6px;border-radius:3px;flex-shrink:0;font-weight:600}
+.ddi-type-daily{background:#38bdf822;color:#38bdf8}.ddi-type-weekly{background:#818cf822;color:#818cf8}.ddi-type-monthly{background:#f59e0b22;color:#fbbf24}.ddi-type-memo{background:#a78bfa22;color:#a78bfa}
+.day-detail-empty{color:#475569;font-size:13px;text-align:center;padding:16px 0}
+.day-detail-summary{display:flex;gap:12px;margin-bottom:12px}
+.day-detail-stat{flex:1;text-align:center;padding:8px;background:#1e293b;border-radius:8px}
+.day-detail-stat .ds-val{font-size:18px;font-weight:700;color:#f8fafc}
+.day-detail-stat .ds-label{font-size:10px;color:#64748b;margin-top:2px}
 .monthly-task-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #1e293b;font-size:13px}
 .monthly-task-item:last-child{border-bottom:none}
 .monthly-task-item .day-badge{background:#f59e0b;color:#0f172a;font-weight:700;font-size:11px;padding:2px 8px;border-radius:4px;min-width:36px;text-align:center;flex-shrink:0}
@@ -553,7 +571,15 @@ function renderCalendar(){
   const grid=document.getElementById('calendarGrid'),label=document.getElementById('monthLabel');
   label.textContent=`${currentYear}년 ${['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][currentMonth]}`;
   const fd=new Date(currentYear,currentMonth,1).getDay(),dim=new Date(currentYear,currentMonth+1,0).getDate(),now=new Date(),ic=now.getFullYear()===currentYear&&now.getMonth()===currentMonth;
-  const td=new Set();monthlyTasks.forEach(t=>{for(let d=t.day;d<=(t.endDay||t.day);d++)td.add(d);});
+  // Mark days that have any tasks (monthly, daily, weekly, memos)
+  const td=new Set();
+  monthlyTasks.forEach(t=>{for(let d=t.day;d<=(t.endDay||t.day);d++)td.add(d);});
+  // Daily tasks exist every day, so mark all days; weekly by day-of-week
+  const dayMapCal=['sun','mon','tue','wed','thu','fri','sat'];
+  if(dailyTasks.length>0){for(let d=1;d<=dim;d++)td.add(d);}
+  for(let d=1;d<=dim;d++){const dk=dayMapCal[new Date(currentYear,currentMonth,d).getDay()];if(weeklyTasks[dk]&&weeklyTasks[dk].length>0)td.add(d);}
+  // Memos with due dates in this month
+  memos.forEach(m=>{if(m.due){const dp=new Date(m.due);if(dp.getFullYear()===currentYear&&dp.getMonth()===currentMonth)td.add(dp.getDate());}});
   let html='';['일','월','화','수','목','금','토'].forEach(d=>html+=`<div class="cal-header">${d}</div>`);
   for(let i=0;i<fd;i++)html+=`<div class="cal-day empty"></div>`;
   for(let d=1;d<=dim;d++){const dow=new Date(currentYear,currentMonth,d).getDay();html+=`<div class="cal-day ${ic&&d===now.getDate()?'today':''} ${td.has(d)?'has-task':''} ${dow===0?'sunday':''}" onclick="selectDay(${d})">${d}</div>`;}
@@ -561,10 +587,86 @@ function renderCalendar(){
 }
 function changeMonth(d){currentMonth+=d;if(currentMonth>11){currentMonth=0;currentYear++;}if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();}
 function selectDay(day){
-  document.getElementById('selectedDayTitle').textContent=`${currentMonth+1}월 ${day}일 업무`;
-  const tasks=monthlyTasks.filter(t=>day>=t.day&&day<=(t.endDay||t.day)),c=document.getElementById('selectedDayTasks');
-  if(!tasks.length){c.innerHTML='<p style="color:#64748b;font-size:13px">이 날짜에는 월간 업무가 없습니다.</p>';return;}
-  let h='';tasks.forEach(mt=>{const cat=categoryLabels[mt.category],pi=mt.endDay>mt.day?` <span class="period-badge">${mt.day}일~${mt.endDay}일</span>`:'';mt.tasks.forEach(tn=>h+=`<div class="monthly-task-item"><div class="day-badge">${mt.day}일</div><span class="category ${cat.class}">${cat.label}</span><span>${tn}${pi}</span></div>`);});
+  // Highlight selected day
+  document.querySelectorAll('.cal-day.selected').forEach(el=>el.classList.remove('selected'));
+  event&&event.target&&event.target.classList.add('selected');
+
+  const selDate=new Date(currentYear,currentMonth,day);
+  const dayNames=['일','월','화','수','목','금','토'];
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const dow=selDate.getDay();
+  const isToday=new Date().toDateString()===selDate.toDateString();
+
+  document.getElementById('selectedDayTitle').textContent=`${currentMonth+1}월 ${day}일 (${dayNames[dow]}) ${isToday?'— 오늘':''}`;
+  const c=document.getElementById('selectedDayTasks');
+
+  let items=[], totalCount=0, doneCount=0;
+
+  // 1) Daily tasks (every day)
+  dailyTasks.forEach(t=>{
+    const checked=!!checkedTasks[t.id];
+    totalCount++; if(checked) doneCount++;
+    items.push({type:'daily',name:t.name,time:t.time||'',checked,priority:t.priority||'medium'});
+  });
+
+  // 2) Weekly tasks for this day of week
+  const dayKey=dayMap[dow];
+  const wTasks=weeklyTasks[dayKey]||[];
+  wTasks.forEach(t=>{
+    const checked=!!checkedTasks[t.id];
+    totalCount++; if(checked) doneCount++;
+    items.push({type:'weekly',name:t.name,time:t.time||'',checked,priority:t.priority||'medium',days:t.days});
+  });
+
+  // 3) Monthly tasks for this day
+  monthlyTasks.filter(mt=>day>=mt.day&&day<=(mt.endDay||mt.day)).forEach(mt=>{
+    mt.tasks.forEach((tn,i)=>{
+      const checked=!!checkedTasks[`m_${mt.day}_${i}`];
+      totalCount++; if(checked) doneCount++;
+      const cat=categoryLabels[mt.category];
+      const period=mt.endDay>mt.day?`${mt.day}~${mt.endDay}일`:'';
+      items.push({type:'monthly',name:tn,time:period,checked,catLabel:cat.label,catClass:cat.class});
+    });
+  });
+
+  // 4) Memos with due date on this day
+  const dateStr=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  memos.filter(m=>m.due===dateStr).forEach(m=>{
+    const checked=!!m.done;
+    totalCount++; if(checked) doneCount++;
+    items.push({type:'memo',name:m.title,time:m.due?'마감':'',checked,color:m.color||'blue'});
+  });
+
+  if(!items.length){
+    c.innerHTML='<div class="day-detail-empty">이 날짜에 등록된 업무가 없습니다</div>';
+    return;
+  }
+
+  const pct=totalCount>0?Math.round(doneCount/totalCount*100):0;
+  let h=`<div class="day-detail-summary">
+    <div class="day-detail-stat"><div class="ds-val">${totalCount}</div><div class="ds-label">전체</div></div>
+    <div class="day-detail-stat"><div class="ds-val" style="color:#4ade80">${doneCount}</div><div class="ds-label">완료</div></div>
+    <div class="day-detail-stat"><div class="ds-val" style="color:#fbbf24">${totalCount-doneCount}</div><div class="ds-label">남은</div></div>
+    <div class="day-detail-stat"><div class="ds-val" style="color:#38bdf8">${pct}%</div><div class="ds-label">달성률</div></div>
+  </div>`;
+
+  const typeLabels={daily:{icon:'📋',label:'일간 업무'},weekly:{icon:'📅',label:'주간 업무'},monthly:{icon:'🗓',label:'월간 업무'},memo:{icon:'📝',label:'메모'}};
+  const grouped={};
+  items.forEach(it=>{if(!grouped[it.type])grouped[it.type]=[];grouped[it.type].push(it);});
+
+  for(const [type,list] of Object.entries(grouped)){
+    const tl=typeLabels[type];
+    const doneInGroup=list.filter(x=>x.checked).length;
+    h+=`<div class="day-detail-group"><div class="day-detail-group-title"><span class="dg-icon">${tl.icon}</span>${tl.label} <span style="color:#94a3b8">${doneInGroup}/${list.length}</span></div>`;
+    list.forEach(it=>{
+      const checkCls=it.checked?'checked':'unchecked';
+      const checkIcon=it.checked?'✓':'';
+      const itemCls=it.checked?'item-checked':'';
+      const sub=it.time?`<span class="ddi-time">${it.time}</span>`:'';
+      h+=`<div class="day-detail-item ${itemCls}"><div class="ddi-check ${checkCls}">${checkIcon}</div><span class="ddi-name">${escHtml(it.name)}</span><span class="ddi-type ddi-type-${type}">${tl.label.replace(' 업무','')}</span>${sub}</div>`;
+    });
+    h+=`</div>`;
+  }
   c.innerHTML=h;
 }
 
@@ -929,6 +1031,8 @@ function renderOverview(){
 // ============ RENDER ALL ============
 function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();}
 renderAll();
+// Auto-select today on load
+selectDay(new Date().getDate());
 </script>
 </div><!-- /appContent -->
 
