@@ -194,6 +194,27 @@ svg text{font-family:'Segoe UI',sans-serif}
 .day-col-task:hover .edit-btn-mini,.monthly-card:hover .edit-btn-mini,.ov-card:hover .edit-btn-mini{opacity:1}
 .edit-btn-mini:hover{color:#38bdf8;background:#38bdf822}
 .edit-btn-mini.del:hover{color:#ef4444;background:#ef444422}
+.task-action-btn.btn-copy{opacity:0;transition:all .15s}
+.task-item:hover .btn-copy{opacity:1}
+.btn-copy:hover{color:#e91e63!important;background:#e91e6322!important}
+.leave-section{margin-top:20px;padding-top:16px;border-top:1px solid #334155}
+.leave-section h2{font-size:14px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.leave-add-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.leave-input{background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;padding:6px 10px;font-size:12px;font-family:inherit;flex:1;min-width:120px}
+.leave-select{background:#0f172a;border:1px solid #334155;border-radius:8px;color:#e2e8f0;padding:6px 8px;font-size:12px;font-family:inherit;flex:1;min-width:100px}
+.leave-add-btn{background:#38bdf8;border:none;color:#0f172a;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.leave-add-btn:hover{background:#7dd3fc}
+.leave-list{max-height:180px;overflow-y:auto}
+.leave-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:8px;margin-bottom:4px;font-size:12px;background:#0f172a;border:1px solid #334155}
+.leave-item .leave-info{display:flex;align-items:center;gap:8px}
+.leave-item .leave-del{background:none;border:none;color:#64748b;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px}
+.leave-item .leave-del:hover{color:#ef4444;background:#ef444422}
+.cal-day.is-leave{background:#f59e0b22;color:#fbbf24;position:relative}
+.cal-day.is-leave::before{content:'';position:absolute;top:2px;right:2px;width:6px;height:6px;background:#f59e0b;border-radius:50%}
+.cal-day.is-holiday{background:#ef444422;color:#f87171}
+.cal-day.is-holiday::before{content:'';position:absolute;top:2px;right:2px;width:6px;height:6px;background:#ef4444;border-radius:50%}
+.cal-day.today.is-leave{background:linear-gradient(135deg,#38bdf8,#f59e0b)}
+.cal-day.today.is-holiday{background:linear-gradient(135deg,#38bdf8,#ef4444)}
 .monthly-card-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;margin-top:8px}
 .monthly-card:hover .monthly-card-actions{opacity:1}
 .mc-act-btn{background:#334155;border:none;color:#94a3b8;font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s}
@@ -296,10 +317,6 @@ select.form-input{cursor:pointer}
 .report-act-btn.primary:hover{background:#7dd3fc}
 .report-act-btn.claude-btn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#0f172a;font-weight:700}
 .report-act-btn.claude-btn:hover{background:linear-gradient(135deg,#f59e0b,#fbbf24);transform:scale(1.03)}
-.asana-copy-wrap{margin-left:auto;display:flex;align-items:center}
-.asana-copy-btn{background:linear-gradient(135deg,#f06292,#e91e63);border:none;color:#fff;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:4px}
-.asana-copy-btn:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(233,30,99,.35)}
-.asana-copy-btn:active{transform:scale(.96)}
 .report-body{flex:1;overflow-y:auto;padding:24px}
 .report-section{margin-bottom:24px}
 .report-section h3{font-size:15px;color:#38bdf8;margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:6px;border-bottom:1px solid #1e293b}
@@ -376,6 +393,21 @@ select.form-input{cursor:pointer}
     <div class="month-nav"><button onclick="changeMonth(-1)">◀</button><span id="monthLabel"></span><button onclick="changeMonth(1)">▶</button></div>
     <div class="calendar-grid" id="calendarGrid"></div>
     <div class="monthly-detail"><h3 id="selectedDayTitle">날짜를 선택하세요</h3><div id="selectedDayTasks"><p style="color:#64748b;font-size:13px">캘린더에서 노란 점이 있는 날짜를 클릭하세요</p></div></div>
+    <div class="leave-section">
+      <h2>🏖 연차 / 휴일 관리</h2>
+      <div class="leave-add-row">
+        <input type="date" id="leaveDate" class="leave-input">
+        <select id="leaveType" class="leave-select">
+          <option value="leave">🏖 연차</option>
+          <option value="half-am">🌅 오전반차</option>
+          <option value="half-pm">🌙 오후반차</option>
+          <option value="holiday">🎌 공휴일</option>
+          <option value="sick">🤒 병가</option>
+        </select>
+        <button class="leave-add-btn" onclick="addLeaveDay()">추가</button>
+      </div>
+      <div class="leave-list" id="leaveList"></div>
+    </div>
   </div>
   <div class="content">
     <div class="tabs">
@@ -384,9 +416,6 @@ select.form-input{cursor:pointer}
       <button class="tab" onclick="switchTab('weekly',this)">📅 주간 업무</button>
       <button class="tab" onclick="switchTab('monthly',this)">🗓 월간 업무</button>
       <button class="tab" onclick="switchTab('memo',this)">📝 메모</button>
-      <div class="asana-copy-wrap" id="asanaCopyWrap">
-        <button class="asana-copy-btn" onclick="copyForAsana()" title="현재 탭의 업무를 아사나 등록용으로 복사">📋 Asana 복사</button>
-      </div>
     </div>
     <div id="warningContainer"></div>
     <div class="stats-row">
@@ -578,6 +607,13 @@ let dailyTasks = loadData('daily', DEFAULT_DAILY);
 let weeklyTasksAll = loadData('weekly', DEFAULT_WEEKLY);
 let monthlyTasks = loadData('monthly', DEFAULT_MONTHLY);
 let memos = loadData('memos', []);
+let leaveDays = loadData('leaveDays', []);
+// Korean public holidays (month-day, fixed dates)
+const HOLIDAYS_FIXED = [
+  {m:1,d:1,name:'신정'},{m:3,d:1,name:'삼일절'},{m:5,d:5,name:'어린이날'},
+  {m:6,d:6,name:'현충일'},{m:8,d:15,name:'광복절'},{m:10,d:3,name:'개천절'},
+  {m:10,d:9,name:'한글날'},{m:12,d:25,name:'크리스마스'}
+];
 let memoFilter = 'all';
 
 const categoryLabels = { settlement:{label:'정산',class:'cat-settlement'}, accounting:{label:'회계',class:'cat-accounting'}, hr:{label:'인사',class:'cat-hr'}, general:{label:'총무',class:'cat-general'} };
@@ -637,8 +673,12 @@ function drawTaskClock() {
 drawTaskClock(); setInterval(drawTaskClock,60000);
 
 // ============ RENDER HELPERS ============
-function taskActionBtns(type, id, extraData) {
-  return `<div class="task-actions"><button class="task-action-btn btn-edit" onclick="event.stopPropagation();openEditModal('${type}','${id}')" title="편집">✏️</button><button class="task-action-btn btn-delete" onclick="event.stopPropagation();confirmDelete('${type}','${id}')" title="삭제">🗑</button></div>`;
+function taskActionBtns(type, id, taskName) {
+  const safeName=(taskName||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return `<div class="task-actions"><button class="task-action-btn btn-copy" onclick="event.stopPropagation();copyOneTask('${safeName}')" title="Asana 복사">📋</button><button class="task-action-btn btn-edit" onclick="event.stopPropagation();openEditModal('${type}','${id}')" title="편집">✏️</button><button class="task-action-btn btn-delete" onclick="event.stopPropagation();confirmDelete('${type}','${id}')" title="삭제">🗑</button></div>`;
+}
+function copyOneTask(name){
+  navigator.clipboard.writeText(name).then(()=>showToast('📋 복사 완료',`"${name}" 클립보드에 복사됨`));
 }
 
 // ============ DAILY VIEW ============
@@ -652,7 +692,7 @@ function renderDailyTasks() {
     html+=`<div class="time-group"><div class="time-group-title">${group.title}</div>`;
     group.tasks.forEach(t=>{
       const ck=checkedTasks[t.id]?'checked':'';
-      html+=`<div class="task-item ${ck}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck}"></div><div class="task-priority priority-${t.priority}"></div><div class="task-name">${t.name}</div><div class="task-time">${t.time}</div>${taskActionBtns('daily',t.id)}</div>`;
+      html+=`<div class="task-item ${ck}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck}"></div><div class="task-priority priority-${t.priority}"></div><div class="task-name">${t.name}</div><div class="task-time">${t.time}</div>${taskActionBtns('daily',t.id,t.name)}</div>`;
     });
     html+=`</div>`;
   }
@@ -688,7 +728,7 @@ function renderDailyTasks() {
       const ck=checkedTasks[t.id]?'checked':'';
       let badge='';
       if(t.days.length>1){badge='<span class="task-days-badge">';['월','화','수','목','금'].forEach(d=>{if(t.days.includes(d)){const act=d===keyToDayName[todayDay];badge+=`<span class="day-dot ${act?'active-day':'inactive-day'}">${d}</span>`;}});badge+='</span>';}
-      html+=`<div class="task-item ${ck}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck}"></div><div class="task-priority priority-medium"></div><div class="task-name">${t.name}${badge}</div><div class="task-time">${t.days.length>1?t.days.join('·'):'주간'}</div>${taskActionBtns('weekly',t.id)}</div>`;
+      html+=`<div class="task-item ${ck}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck}"></div><div class="task-priority priority-medium"></div><div class="task-name">${t.name}${badge}</div><div class="task-time">${t.days.length>1?t.days.join('·'):'주간'}</div>${taskActionBtns('weekly',t.id,t.name)}</div>`;
     });
     html+=`</div>`;
   }
@@ -721,7 +761,7 @@ function renderWeeklyView(){
     html+=`<div class="day-column ${isToday?'today-col':''}"><div class="day-col-header">${name} <span style="font-size:11px;opacity:.6">(${dateLabel}, ${tc}건)</span></div><div class="day-col-tasks">`;
     (weeklyTasks[key]||[]).forEach(t=>{
       const ck=dayChecks[t.id]?'checked':'',md=t.days.length>1?`<span class="multi-day-badge">${t.days.join('·')}</span>`:'';
-      html+=`<div class="day-col-task" onclick="toggleTask('${t.id}','${wdKey}')"><div class="mini-check ${ck}"></div><span style="flex:1">${t.name}</span>${md}<button class="edit-btn-mini" onclick="event.stopPropagation();openEditModal('weekly','${t.id}')" title="편집">✏️</button><button class="edit-btn-mini del" onclick="event.stopPropagation();confirmDelete('weekly','${t.id}')" title="삭제">🗑</button></div>`;
+      html+=`<div class="day-col-task" onclick="toggleTask('${t.id}','${wdKey}')"><div class="mini-check ${ck}"></div><span style="flex:1">${t.name}</span>${md}<button class="edit-btn-mini" onclick="event.stopPropagation();copyOneTask('${t.name.replace(/'/g,"\\'")}')" title="Asana 복사">📋</button><button class="edit-btn-mini" onclick="event.stopPropagation();openEditModal('weekly','${t.id}')" title="편집">✏️</button><button class="edit-btn-mini del" onclick="event.stopPropagation();confirmDelete('weekly','${t.id}')" title="삭제">🗑</button></div>`;
     });
     html+=`<div class="add-task-row" style="font-size:12px;padding:6px 10px" onclick="openAddModal('weekly')"><span class="plus">+</span> 추가</div>`;
     html+=`</div></div>`;
@@ -744,11 +784,76 @@ function renderMonthlyView(){
     else{st=`D-${mt.day-today}`;ss='status-upcoming';}
     const cat=categoryLabels[mt.category],ph=mt.period?`<div class="monthly-card-period">📆 <span class="period-badge">${mt.period}</span></div>`:'';
     html+=`<div class="monthly-card ${sc}"><div class="monthly-card-header"><div class="monthly-card-day">${mt.day}<span>일</span> <span class="category ${cat.class}">${cat.label}</span></div><div class="monthly-card-status ${ss}">${st}</div></div>${ph}<ul class="monthly-card-tasks">`;
-    mt.tasks.forEach((tn,i)=>{const tid=`m_${mt.day}_${i}`,dn=mtChecks[tid]?'✅ ':'';html+=`<li onclick="toggleTask('${tid}','${mtDateKey}')" style="cursor:pointer">${dn}${tn}</li>`;});
+    mt.tasks.forEach((tn,i)=>{const tid=`m_${mt.day}_${i}`,dn=mtChecks[tid]?'✅ ':'';html+=`<li onclick="toggleTask('${tid}','${mtDateKey}')" style="cursor:pointer">${dn}${tn}<button class="edit-btn-mini" onclick="event.stopPropagation();copyOneTask('${tn.replace(/'/g,"\\'")}')" title="Asana 복사" style="margin-left:6px">📋</button></li>`;});
     html+=`</ul><div class="monthly-card-actions"><button class="mc-act-btn" onclick="openEditModal('monthly','${idx}')">✏️ 수정</button><button class="mc-act-btn mc-del" onclick="confirmDelete('monthly','${idx}')">🗑 삭제</button></div></div>`;
   });
   html+=`<div class="monthly-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;min-height:100px" onclick="openAddModal('monthly')"><div style="text-align:center"><div style="font-size:24px;margin-bottom:4px">+</div><div style="font-size:13px">새 월간 업무 추가</div></div></div>`;
   grid.innerHTML=html;
+}
+
+// ============ LEAVE / HOLIDAY ============
+const leaveTypeLabels={leave:'🏖 연차','half-am':'🌅 오전반차','half-pm':'🌙 오후반차',holiday:'🎌 공휴일',sick:'🤒 병가'};
+
+function addLeaveDay(){
+  const dateInput=document.getElementById('leaveDate');
+  const typeInput=document.getElementById('leaveType');
+  if(!dateInput.value){showToast('⚠️','날짜를 선택하세요');return;}
+  const exists=leaveDays.find(l=>l.date===dateInput.value&&l.type===typeInput.value);
+  if(exists){showToast('⚠️','이미 등록된 날짜입니다');return;}
+  leaveDays.push({date:dateInput.value,type:typeInput.value});
+  leaveDays.sort((a,b)=>a.date.localeCompare(b.date));
+  saveData('leaveDays',leaveDays);
+  dateInput.value='';
+  renderLeaveList();renderCalendar();
+  showToast('🏖 등록 완료',`${leaveTypeLabels[typeInput.value]} 등록되었습니다`);
+}
+
+function removeLeaveDay(idx){
+  leaveDays.splice(idx,1);
+  saveData('leaveDays',leaveDays);
+  renderLeaveList();renderCalendar();
+  showToast('🗑 삭제','휴일이 삭제되었습니다');
+}
+
+function getLeaveForDate(y,m,d){
+  const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  return leaveDays.filter(l=>l.date===ds);
+}
+
+function isHoliday(m,d){
+  return HOLIDAYS_FIXED.find(h=>h.m===(m+1)&&h.d===d);
+}
+
+function isLeaveOrHoliday(y,m,d){
+  const leave=getLeaveForDate(y,m,d);
+  const holiday=isHoliday(m,d);
+  if(leave.length) return {type:'leave',label:leaveTypeLabels[leave[0].type]};
+  if(holiday) return {type:'holiday',label:'🎌 '+holiday.name};
+  return null;
+}
+
+function renderLeaveList(){
+  const container=document.getElementById('leaveList');
+  // Show leaves for current calendar month
+  const monthStr=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}`;
+  const monthLeaves=leaveDays.filter(l=>l.date.startsWith(monthStr));
+  // Also show holidays for this month
+  const holidays=HOLIDAYS_FIXED.filter(h=>h.m===currentMonth+1);
+
+  let html='';
+  if(!monthLeaves.length&&!holidays.length){
+    html=`<div style="color:#64748b;font-size:12px;padding:8px;text-align:center">이번 달 등록된 휴일이 없습니다</div>`;
+  } else {
+    holidays.forEach(h=>{
+      html+=`<div class="leave-item"><div class="leave-info"><span>🎌</span><span>${h.d}일</span><span style="color:#f87171">${h.name}</span></div><span style="color:#64748b;font-size:11px">공휴일</span></div>`;
+    });
+    monthLeaves.forEach((l,i)=>{
+      const d=parseInt(l.date.split('-')[2]);
+      const realIdx=leaveDays.indexOf(l);
+      html+=`<div class="leave-item"><div class="leave-info"><span>${leaveTypeLabels[l.type].charAt(0)}</span><span>${d}일</span><span>${leaveTypeLabels[l.type]}</span></div><button class="leave-del" onclick="removeLeaveDay(${realIdx})">✕</button></div>`;
+    });
+  }
+  container.innerHTML=html;
 }
 
 // ============ CALENDAR ============
@@ -767,8 +872,19 @@ function renderCalendar(){
   memos.forEach(m=>{if(m.due){const dp=new Date(m.due);if(dp.getFullYear()===currentYear&&dp.getMonth()===currentMonth)td.add(dp.getDate());}});
   let html='';['일','월','화','수','목','금','토'].forEach(d=>html+=`<div class="cal-header">${d}</div>`);
   for(let i=0;i<fd;i++)html+=`<div class="cal-day empty"></div>`;
-  for(let d=1;d<=dim;d++){const dow=new Date(currentYear,currentMonth,d).getDay();html+=`<div class="cal-day ${ic&&d===now.getDate()?'today':''} ${td.has(d)?'has-task':''} ${dow===0?'sunday':''}" onclick="selectDay(${d})">${d}</div>`;}
+  for(let d=1;d<=dim;d++){
+    const dow=new Date(currentYear,currentMonth,d).getDay();
+    const lh=isLeaveOrHoliday(currentYear,currentMonth,d);
+    let cls=`cal-day`;
+    if(ic&&d===now.getDate()) cls+=' today';
+    if(td.has(d)) cls+=' has-task';
+    if(dow===0) cls+=' sunday';
+    if(lh&&lh.type==='leave') cls+=' is-leave';
+    if(lh&&lh.type==='holiday') cls+=' is-holiday';
+    html+=`<div class="${cls}" onclick="selectDay(${d})" ${lh?`title="${lh.label}"`:``}>${d}</div>`;
+  }
   grid.innerHTML=html;
+  renderLeaveList();
 }
 function changeMonth(d){currentMonth+=d;if(currentMonth>11){currentMonth=0;currentYear++;}if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();}
 function selectDay(day){
@@ -786,7 +902,9 @@ function selectDay(day){
   const selDateKey=getDateKey(currentYear,currentMonth,day);
   const dayChecks=getChecksForDate(selDateKey);
 
-  document.getElementById('selectedDayTitle').textContent=`${currentMonth+1}월 ${day}일 (${dayNames[dow]}) ${isToday?'— 오늘':''}`;
+  const lh=isLeaveOrHoliday(currentYear,currentMonth,day);
+  const leaveTag=lh?` <span style="font-size:12px;color:${lh.type==='holiday'?'#f87171':'#fbbf24'};background:${lh.type==='holiday'?'#ef444422':'#f59e0b22'};padding:2px 8px;border-radius:6px">${lh.label}</span>`:'';
+  document.getElementById('selectedDayTitle').innerHTML=`${currentMonth+1}월 ${day}일 (${dayNames[dow]}) ${isToday?'— 오늘':''}${leaveTag}`;
   const c=document.getElementById('selectedDayTasks');
 
   let items=[], totalCount=0, doneCount=0;
@@ -896,97 +1014,6 @@ function updateStats(){
 // ============ TABS ============
 function switchTab(tab,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
   document.getElementById('allView').style.display=tab==='all'?'':'none';document.getElementById('dailyView').style.display=tab==='daily'?'':'none';document.getElementById('weeklyView').style.display=tab==='weekly'?'':'none';document.getElementById('monthlyView').style.display=tab==='monthly'?'':'none';document.getElementById('memoView').style.display=tab==='memo'?'':'none';
-  // Show/hide asana copy button (not for memo/all)
-  const aw=document.getElementById('asanaCopyWrap');
-  if(aw) aw.style.display=['daily','weekly','monthly'].includes(tab)?'flex':'none';
-  window._currentTab=tab;
-}
-
-// ============ ASANA COPY ============
-function copyForAsana(){
-  const tab=window._currentTab||'daily';
-  let lines=[];
-  const dayKo={mon:'월',tue:'화',wed:'수',thu:'목',fri:'금',sat:'토',sun:'일'};
-  const today=new Date(),todayStr=`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
-
-  if(tab==='daily'){
-    lines.push(`[일간 업무] ${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`);
-    lines.push('');
-    const groups={morning:{label:'오전',tasks:[]},afternoon:{label:'오후',tasks:[]},evening:{label:'퇴근전',tasks:[]}};
-    dailyTasks.forEach(t=>groups[t.timeSlot].tasks.push(t));
-    for(const[,g] of Object.entries(groups)){
-      if(!g.tasks.length) continue;
-      lines.push(`▸ ${g.label}`);
-      g.tasks.forEach(t=>{
-        const ck=checkedTasks[t.id]?'✅':'⬜';
-        lines.push(`  ${ck} ${t.name} (${t.time})`);
-      });
-      lines.push('');
-    }
-    // Today's weekly tasks
-    const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
-    const dk=dayMap[today.getDay()];
-    const wt=weeklyTasks[dk]||[];
-    if(wt.length){
-      lines.push(`▸ 오늘의 주간 업무`);
-      wt.forEach(t=>{
-        const ck=checkedTasks[t.id]?'✅':'⬜';
-        lines.push(`  ${ck} ${t.name}`);
-      });
-      lines.push('');
-    }
-    // Today's monthly tasks
-    const d=today.getDate();
-    const mt=monthlyTasks.filter(m=>d>=m.day&&d<=(m.endDay||m.day));
-    if(mt.length){
-      lines.push(`▸ 오늘의 월간 업무`);
-      mt.forEach(m=>m.tasks.forEach((tn,i)=>{
-        const ck=checkedTasks[`m_${m.day}_${i}`]?'✅':'⬜';
-        lines.push(`  ${ck} ${tn}`);
-      }));
-      lines.push('');
-    }
-
-  } else if(tab==='weekly'){
-    const weekDates=getWeekDates();
-    const firstDay=weekDates.mon;
-    lines.push(`[주간 업무] ${firstDay.getFullYear()}년 ${firstDay.getMonth()+1}월 ${firstDay.getDate()}일 주차`);
-    lines.push('');
-    for(const[key,wd] of Object.entries(weekDates)){
-      const tasks=weeklyTasks[key]||[];
-      if(!tasks.length) continue;
-      const wdKey=getDateKey(wd.getFullYear(),wd.getMonth(),wd.getDate());
-      const dayChecks=getChecksForDate(wdKey);
-      lines.push(`▸ ${dayKo[key]}요일 (${wd.getMonth()+1}/${wd.getDate()})`);
-      tasks.forEach(t=>{
-        const ck=dayChecks[t.id]?'✅':'⬜';
-        lines.push(`  ${ck} ${t.name}`);
-      });
-      lines.push('');
-    }
-
-  } else if(tab==='monthly'){
-    lines.push(`[월간 업무] ${currentYear}년 ${currentMonth+1}월`);
-    lines.push('');
-    monthlyTasks.forEach(mt=>{
-      const cat=categoryLabels[mt.category];
-      const mtDateKey=getDateKey(currentYear,currentMonth,mt.day);
-      const mtChecks=getChecksForDate(mtDateKey);
-      const dateStr=mt.endDay&&mt.endDay>mt.day?`${mt.day}일~${mt.endDay}일`:`${mt.day}일`;
-      lines.push(`▸ ${dateStr} [${cat.label}]`);
-      mt.tasks.forEach((tn,i)=>{
-        const ck=mtChecks[`m_${mt.day}_${i}`]?'✅':'⬜';
-        lines.push(`  ${ck} ${tn}`);
-      });
-      lines.push('');
-    });
-  }
-
-  const text=lines.join('\n').trim();
-  navigator.clipboard.writeText(text).then(()=>{
-    const labels={daily:'일간',weekly:'주간',monthly:'월간'};
-    showToast('📋 Asana 복사 완료',`${labels[tab]} 업무가 클립보드에 복사되었습니다`);
-  });
 }
 
 // ============ MODAL (Add / Edit) ============
@@ -1368,6 +1395,11 @@ function checkWarnings(){
   for(const[dk,wd] of Object.entries(weekDates)){
     if(wd>=now)continue; // skip today and future
     if(wd.getDay()===0||wd.getDay()===6)continue;
+    // Skip if leave/holiday (full day leave, holiday, sick)
+    const wdLeave=isLeaveOrHoliday(wd.getFullYear(),wd.getMonth(),wd.getDate());
+    if(wdLeave&&['leave','holiday'].includes(wdLeave.type))continue;
+    const wdLeaveDirect=getLeaveForDate(wd.getFullYear(),wd.getMonth(),wd.getDate());
+    if(wdLeaveDirect.some(l=>['leave','holiday','sick'].includes(l.type)))continue;
     const wdKey=getDateKey(wd.getFullYear(),wd.getMonth(),wd.getDate());
     const wdChecks=getChecksForDate(wdKey);
     const wTasks=weeklyTasks[dk]||[];
