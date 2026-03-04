@@ -189,6 +189,17 @@ svg text{font-family:'Segoe UI',sans-serif}
 .ov-timeline-time{font-size:11px;color:#64748b;margin-bottom:4px}
 .ov-timeline-content{font-size:13px;color:#e2e8f0}
 
+/* Edit buttons for all views */
+.edit-btn-mini{background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;padding:2px 4px;border-radius:4px;opacity:0;transition:all .15s;flex-shrink:0}
+.day-col-task:hover .edit-btn-mini,.monthly-card:hover .edit-btn-mini,.ov-card:hover .edit-btn-mini{opacity:1}
+.edit-btn-mini:hover{color:#38bdf8;background:#38bdf822}
+.edit-btn-mini.del:hover{color:#ef4444;background:#ef444422}
+.monthly-card-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;margin-top:8px}
+.monthly-card:hover .monthly-card-actions{opacity:1}
+.mc-act-btn{background:#334155;border:none;color:#94a3b8;font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s}
+.mc-act-btn:hover{background:#475569;color:#e2e8f0}
+.mc-act-btn.mc-del:hover{background:#ef4444;color:#fff}
+
 /* Warning Alerts */
 .warning-banner{background:linear-gradient(135deg,#ef444422,#dc262622);border:2px solid #ef4444;border-radius:14px;padding:18px 20px;margin-bottom:20px;animation:warningPulse 2s infinite}
 @keyframes warningPulse{0%,100%{border-color:#ef4444;box-shadow:0 0 0 0 rgba(239,68,68,.3)}50%{border-color:#f87171;box-shadow:0 0 20px 4px rgba(239,68,68,.15)}}
@@ -593,7 +604,7 @@ function renderWeeklyView(){
     html+=`<div class="day-column ${isToday?'today-col':''}"><div class="day-col-header">${name} <span style="font-size:11px;opacity:.6">(${dateLabel}, ${tc}건)</span></div><div class="day-col-tasks">`;
     (weeklyTasks[key]||[]).forEach(t=>{
       const ck=dayChecks[t.id]?'checked':'',md=t.days.length>1?`<span class="multi-day-badge">${t.days.join('·')}</span>`:'';
-      html+=`<div class="day-col-task" onclick="toggleTask('${t.id}','${wdKey}')"><div class="mini-check ${ck}"></div><span style="flex:1">${t.name}</span>${md}</div>`;
+      html+=`<div class="day-col-task" onclick="toggleTask('${t.id}','${wdKey}')"><div class="mini-check ${ck}"></div><span style="flex:1">${t.name}</span>${md}<button class="edit-btn-mini" onclick="event.stopPropagation();openEditModal('weekly','${t.id}')" title="편집">✏️</button><button class="edit-btn-mini del" onclick="event.stopPropagation();confirmDelete('weekly','${t.id}')" title="삭제">🗑</button></div>`;
     });
     html+=`<div class="add-task-row" style="font-size:12px;padding:6px 10px" onclick="openAddModal('weekly')"><span class="plus">+</span> 추가</div>`;
     html+=`</div></div>`;
@@ -605,7 +616,7 @@ function renderWeeklyView(){
 function renderMonthlyView(){
   const grid=document.getElementById('monthlyGrid'),today=new Date().getDate(),now=new Date();
   let html='';
-  monthlyTasks.forEach(mt=>{
+  monthlyTasks.forEach((mt,idx)=>{
     // Monthly tasks: check against the specific day's checks
     const mtDateKey=getDateKey(currentYear,currentMonth,mt.day);
     const mtChecks=getChecksForDate(mtDateKey);
@@ -617,7 +628,7 @@ function renderMonthlyView(){
     const cat=categoryLabels[mt.category],ph=mt.period?`<div class="monthly-card-period">📆 <span class="period-badge">${mt.period}</span></div>`:'';
     html+=`<div class="monthly-card ${sc}"><div class="monthly-card-header"><div class="monthly-card-day">${mt.day}<span>일</span> <span class="category ${cat.class}">${cat.label}</span></div><div class="monthly-card-status ${ss}">${st}</div></div>${ph}<ul class="monthly-card-tasks">`;
     mt.tasks.forEach((tn,i)=>{const tid=`m_${mt.day}_${i}`,dn=mtChecks[tid]?'✅ ':'';html+=`<li onclick="toggleTask('${tid}','${mtDateKey}')" style="cursor:pointer">${dn}${tn}</li>`;});
-    html+=`</ul></div>`;
+    html+=`</ul><div class="monthly-card-actions"><button class="mc-act-btn" onclick="openEditModal('monthly','${idx}')">✏️ 수정</button><button class="mc-act-btn mc-del" onclick="confirmDelete('monthly','${idx}')">🗑 삭제</button></div></div>`;
   });
   html+=`<div class="monthly-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;min-height:100px" onclick="openAddModal('monthly')"><div style="text-align:center"><div style="font-size:24px;margin-bottom:4px">+</div><div style="font-size:13px">새 월간 업무 추가</div></div></div>`;
   grid.innerHTML=html;
@@ -1145,14 +1156,14 @@ function renderOverview(){
   if(morning.length){
     const hr=now.getHours();
     html+=`<div class="ov-timeline-item"><div class="ov-timeline-dot ${hr>=9&&hr<12?'dot-now':hr>=12?'dot-done':''}"></div><div class="ov-timeline-time">🌅 오전 (출근~12시)</div><div class="ov-grid">`;
-    morning.forEach(t=>{const ck=checkedTasks[t.id];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-daily">일간</span><span class="ov-card-name">${t.name}</span><span class="ov-card-sub">${t.time}</span></div>`;});
+    morning.forEach(t=>{const ck=checkedTasks[t.id];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-daily">일간</span><span class="ov-card-name">${t.name}</span><span class="ov-card-sub">${t.time}</span><button class="edit-btn-mini" onclick="event.stopPropagation();openEditModal('daily','${t.id}')" title="편집">✏️</button></div>`;});
     html+=`</div></div>`;
   }
 
   // Weekly tasks for today
   if(wt.length){
     html+=`<div class="ov-timeline-item"><div class="ov-timeline-dot dot-now"></div><div class="ov-timeline-time">📅 오늘의 주간 업무 (${todayDayKo}요일)</div><div class="ov-grid">`;
-    wt.forEach(t=>{const ck=checkedTasks[t.id];const md=t.days.length>1?` <span class="multi-day-badge">${t.days.join('·')}</span>`:'';html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-weekly">주간</span><span class="ov-card-name">${t.name}${md}</span></div>`;});
+    wt.forEach(t=>{const ck=checkedTasks[t.id];const md=t.days.length>1?` <span class="multi-day-badge">${t.days.join('·')}</span>`:'';html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-weekly">주간</span><span class="ov-card-name">${t.name}${md}</span><button class="edit-btn-mini" onclick="event.stopPropagation();openEditModal('weekly','${t.id}')" title="편집">✏️</button></div>`;});
     html+=`</div></div>`;
   }
 
@@ -1161,7 +1172,7 @@ function renderOverview(){
   if(afternoon.length){
     const hr=now.getHours();
     html+=`<div class="ov-timeline-item"><div class="ov-timeline-dot ${hr>=12&&hr<17?'dot-now':hr>=17?'dot-done':''}"></div><div class="ov-timeline-time">☀️ 오후 (12시~17시)</div><div class="ov-grid">`;
-    afternoon.forEach(t=>{const ck=checkedTasks[t.id];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-daily">일간</span><span class="ov-card-name">${t.name}</span><span class="ov-card-sub">${t.time}</span></div>`;});
+    afternoon.forEach(t=>{const ck=checkedTasks[t.id];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-daily">일간</span><span class="ov-card-name">${t.name}</span><span class="ov-card-sub">${t.time}</span><button class="edit-btn-mini" onclick="event.stopPropagation();openEditModal('daily','${t.id}')" title="편집">✏️</button></div>`;});
     html+=`</div></div>`;
   }
 
@@ -1177,7 +1188,7 @@ function renderOverview(){
   if(evening.length){
     const hr=now.getHours();
     html+=`<div class="ov-timeline-item"><div class="ov-timeline-dot ${hr>=17?'dot-now':''}"></div><div class="ov-timeline-time">🌙 퇴근 전</div><div class="ov-grid">`;
-    evening.forEach(t=>{const ck=checkedTasks[t.id];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-daily">일간</span><span class="ov-card-name">${t.name}</span></div>`;});
+    evening.forEach(t=>{const ck=checkedTasks[t.id];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${t.id}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-daily">일간</span><span class="ov-card-name">${t.name}</span><button class="edit-btn-mini" onclick="event.stopPropagation();openEditModal('daily','${t.id}')" title="편집">✏️</button></div>`;});
     html+=`</div></div>`;
   }
 
