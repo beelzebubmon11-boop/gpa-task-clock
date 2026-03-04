@@ -342,6 +342,21 @@ select.form-input{cursor:pointer}
 .report-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(56,189,248,.3)}
 
 @media(max-width:1200px){.main{flex-direction:column}.sidebar{width:100%;min-width:auto;border-right:none;border-bottom:1px solid #334155}.stats-row{grid-template-columns:repeat(2,1fr)}.weekly-grid{grid-template-columns:repeat(3,1fr)}.monthly-grid{grid-template-columns:1fr}.clock-section{flex-direction:column}.clock-visual{width:100%;min-width:auto}}
+
+/* Backup / Restore */
+.backup-btn-group{display:flex;gap:6px}
+.backup-btn{background:#334155;border:1px solid #475569;color:#94a3b8;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;transition:all .15s;white-space:nowrap}
+.backup-btn:hover{background:#475569;color:#e2e8f0}
+.backup-btn.restore-btn:hover{background:#38bdf822;border-color:#38bdf8;color:#38bdf8}
+.backup-btn.export-btn:hover{background:#22c55e22;border-color:#22c55e;color:#4ade80}
+.backup-reminder{display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#0f3460,#0f172a);border:1.5px solid #38bdf855;border-radius:12px;padding:12px 18px;margin-bottom:16px;animation:reminderPulse 3s infinite}
+@keyframes reminderPulse{0%,100%{border-color:#38bdf855}50%{border-color:#38bdf8bb;box-shadow:0 0 16px 2px rgba(56,189,248,.12)}}
+.backup-reminder-icon{font-size:22px;flex-shrink:0}
+.backup-reminder-text{flex:1;font-size:13px;color:#93c5fd}
+.backup-reminder-text strong{color:#38bdf8;display:block;margin-bottom:2px;font-size:13px}
+.backup-reminder-actions{display:flex;gap:6px;flex-shrink:0}
+.backup-reminder-close{background:none;border:none;color:#475569;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:all .15s}
+.backup-reminder-close:hover{color:#94a3b8;background:#334155}
 </style>
 </head>
 <body>
@@ -381,6 +396,10 @@ select.form-input{cursor:pointer}
       </div>
     </div>
     <button class="report-btn" onclick="openReport()">📊 업무 리포트</button>
+    <div class="backup-btn-group">
+      <button class="backup-btn export-btn" onclick="exportBackup()" title="현재 데이터를 JSON 파일로 백업">💾 백업</button>
+      <button class="backup-btn restore-btn" onclick="importBackup()" title="백업 파일에서 데이터 복원">📂 복원</button>
+    </div>
     <div style="text-align:right">
       <div class="clock-display" id="liveClock">--:--:--</div>
       <div class="date-display" id="liveDate">---</div>
@@ -417,6 +436,17 @@ select.form-input{cursor:pointer}
       <button class="tab" onclick="switchTab('monthly',this)">🗓 월간 업무</button>
       <button class="tab" onclick="switchTab('memo',this)">📝 메모</button>
     </div>
+    <div id="backupReminder" class="backup-reminder">
+      <span class="backup-reminder-icon">💾</span>
+      <div class="backup-reminder-text">
+        <strong>백업을 권장합니다</strong>
+        <span id="backupReminderMsg">오랫동안 백업하지 않았습니다. 브라우저 캐시 삭제 시 데이터가 손실될 수 있습니다.</span>
+      </div>
+      <div class="backup-reminder-actions">
+        <button class="backup-btn export-btn" onclick="exportBackup()" style="font-size:11px;padding:5px 10px">💾 지금 백업</button>
+        <button class="backup-reminder-close" onclick="document.getElementById('backupReminder').style.display='none'" title="닫기">✕</button>
+      </div>
+    </div>
     <div id="warningContainer"></div>
     <div class="stats-row">
       <div class="stat-card highlight"><div class="label">오늘 할 일</div><div class="value" id="statToday">-</div><div class="progress-bar"><div class="progress-fill fill-blue" id="progressToday" style="width:0%"></div></div></div>
@@ -438,6 +468,9 @@ select.form-input{cursor:pointer}
 
 <!-- FAB -->
 <button class="fab" onclick="openAddModal()" title="새 업무 추가">+</button>
+
+<!-- Hidden backup file input -->
+<input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="handleBackupFile(event)">
 
 <!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modalOverlay">
@@ -492,6 +525,7 @@ select.form-input{cursor:pointer}
         <textarea class="form-input" id="fMemoBody" rows="4" placeholder="자세한 내용을 적어두세요..." style="resize:vertical"></textarea>
       </div>
       <div class="form-row">
+        <div class="form-group"><label>시작일 (선택)</label><input class="form-input" id="fMemoStart" type="date"></div>
         <div class="form-group"><label>마감일 (선택)</label><input class="form-input" id="fMemoDue" type="date"></div>
         <div class="form-group"><label>중요도</label>
           <select class="form-input" id="fMemoColor"><option value="yellow">🟡 일반</option><option value="blue">🔵 참고</option><option value="green">🟢 낮음</option><option value="red">🔴 긴급</option><option value="purple">🟣 중요</option></select>
@@ -633,6 +667,31 @@ function getDateKey(y,m,d){ return `${y}-${m+1}-${d}`; }
 function getTodayKey(){ const d=new Date(); return getDateKey(d.getFullYear(),d.getMonth(),d.getDate()); }
 function getChecksForDate(dateKey){ return JSON.parse(localStorage.getItem('taskChecks_'+dateKey)||'{}'); }
 function saveChecksForDate(dateKey,checks){ localStorage.setItem('taskChecks_'+dateKey,JSON.stringify(checks)); }
+// Monthly checks: one check state per entire month (not per day)
+function getMonthlyCheckKey(y,m){ return `monthlyChecks_${y}-${m+1}`; }
+function getMonthlyChecks(y,m){ return JSON.parse(localStorage.getItem(getMonthlyCheckKey(y,m))||'{}'); }
+function saveMonthlyChecks(y,m,checks){ localStorage.setItem(getMonthlyCheckKey(y,m),JSON.stringify(checks)); }
+function toggleMonthlyTask(tid,y,m){
+  if(y===undefined){y=currentYear;m=currentMonth;}
+  const mc=getMonthlyChecks(y,m);
+  mc[tid]=!mc[tid];
+  saveMonthlyChecks(y,m,mc);
+  renderAll();
+  if(window._lastSelectedDay) selectDay(window._lastSelectedDay);
+}
+// Migrate old per-day monthly checks to per-month (one time)
+(function(){
+  const now=new Date(),y=now.getFullYear(),mo=now.getMonth();
+  const mk=getMonthlyCheckKey(y,mo);
+  if(!localStorage.getItem(mk)){
+    const merged={};
+    for(let d=1;d<=31;d++){
+      const dc=JSON.parse(localStorage.getItem('taskChecks_'+`${y}-${mo+1}-${d}`)||'{}');
+      Object.keys(dc).forEach(k=>{if(k.startsWith('m_')&&dc[k])merged[k]=true;});
+    }
+    if(Object.keys(merged).length)saveMonthlyChecks(y,mo,merged);
+  }
+})();
 let todayKey=getTodayKey();
 let checkedTasks=getChecksForDate(todayKey);
 function saveChecks(){ saveChecksForDate(todayKey,checkedTasks); }
@@ -704,9 +763,10 @@ function renderDailyTasks() {
   const mt=monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day));
   if(mt.length){
     html+=`<div class="time-group"><div class="time-group-title">📌 오늘의 월간 업무</div>`;
+    const mmc=getMonthlyChecks(new Date().getFullYear(),new Date().getMonth());
     mt.forEach(m=>m.tasks.forEach((tn,i)=>{
-      const tid=`m_${m.day}_${i}`,ck=checkedTasks[tid]?'checked':'',cat=categoryLabels[m.category];
-      html+=`<div class="task-item ${ck}" onclick="toggleTask('${tid}')"><div class="task-check ${ck}"></div><div class="task-priority priority-high"></div><div class="task-name">${tn} <span class="category ${cat.class}">${cat.label}</span></div><div class="task-time">${m.day}일</div></div>`;
+      const tid=`m_${m.day}_${i}`,ck=mmc[tid]?'checked':'',cat=categoryLabels[m.category];
+      html+=`<div class="task-item ${ck}" onclick="toggleMonthlyTask('${tid}')"><div class="task-check ${ck}"></div><div class="task-priority priority-high"></div><div class="task-name">${tn} <span class="category ${cat.class}">${cat.label}</span></div><div class="task-time">${m.day}일</div></div>`;
     }));
     html+=`</div>`;
   }
@@ -773,18 +833,16 @@ function renderWeeklyView(){
 function renderMonthlyView(){
   const grid=document.getElementById('monthlyGrid'),today=new Date().getDate(),now=new Date();
   let html='';
+  const mmc=getMonthlyChecks(currentYear,currentMonth);
   monthlyTasks.forEach((mt,idx)=>{
-    // Monthly tasks: check against the specific day's checks
-    const mtDateKey=getDateKey(currentYear,currentMonth,mt.day);
-    const mtChecks=getChecksForDate(mtDateKey);
-    let sc='',st='',ss='';const ac=mt.tasks.every((_,i)=>mtChecks[`m_${mt.day}_${i}`]),ed=mt.endDay||mt.day;
+    let sc='',st='',ss='';const ac=mt.tasks.every((_,i)=>mmc[`m_${mt.day}_${i}`]),ed=mt.endDay||mt.day;
     if(ac){sc='completed-card';st='완료';ss='status-done';}
     else if(today>=mt.day&&today<=ed){sc='due-today';st=ed>mt.day?`진행중 (D-${ed-today})`:'오늘!';ss='status-pending';}
     else if(ed<today){sc='overdue';st='미완료';ss='status-overdue';}
     else{st=`D-${mt.day-today}`;ss='status-upcoming';}
     const cat=categoryLabels[mt.category],ph=mt.period?`<div class="monthly-card-period">📆 <span class="period-badge">${mt.period}</span></div>`:'';
     html+=`<div class="monthly-card ${sc}"><div class="monthly-card-header"><div class="monthly-card-day">${mt.day}<span>일</span> <span class="category ${cat.class}">${cat.label}</span></div><div class="monthly-card-status ${ss}">${st}</div></div>${ph}<ul class="monthly-card-tasks">`;
-    mt.tasks.forEach((tn,i)=>{const tid=`m_${mt.day}_${i}`,dn=mtChecks[tid]?'✅ ':'';html+=`<li onclick="toggleTask('${tid}','${mtDateKey}')" style="cursor:pointer">${dn}${tn}<button class="edit-btn-mini" onclick="event.stopPropagation();copyOneTask('${tn.replace(/'/g,"\\'")}')" title="Asana 복사" style="margin-left:6px">📋</button></li>`;});
+    mt.tasks.forEach((tn,i)=>{const tid=`m_${mt.day}_${i}`,dn=mmc[tid]?'✅ ':'';html+=`<li onclick="toggleMonthlyTask('${tid}',${currentYear},${currentMonth})" style="cursor:pointer">${dn}${tn}<button class="edit-btn-mini" onclick="event.stopPropagation();copyOneTask('${tn.replace(/'/g,"\\'")}')" title="Asana 복사" style="margin-left:6px">📋</button></li>`;});
     html+=`</ul><div class="monthly-card-actions"><button class="mc-act-btn" onclick="openEditModal('monthly','${idx}')">✏️ 수정</button><button class="mc-act-btn mc-del" onclick="confirmDelete('monthly','${idx}')">🗑 삭제</button></div></div>`;
   });
   html+=`<div class="monthly-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;min-height:100px" onclick="openAddModal('monthly')"><div style="text-align:center"><div style="font-size:24px;margin-bottom:4px">+</div><div style="font-size:13px">새 월간 업무 추가</div></div></div>`;
@@ -868,8 +926,22 @@ function renderCalendar(){
   const dayMapCal=['sun','mon','tue','wed','thu','fri','sat'];
   if(dailyTasks.length>0){for(let d=1;d<=dim;d++)td.add(d);}
   for(let d=1;d<=dim;d++){const dk=dayMapCal[new Date(currentYear,currentMonth,d).getDay()];if(weeklyTasks[dk]&&weeklyTasks[dk].length>0)td.add(d);}
-  // Memos with due dates in this month
-  memos.forEach(m=>{if(m.due){const dp=new Date(m.due);if(dp.getFullYear()===currentYear&&dp.getMonth()===currentMonth)td.add(dp.getDate());}});
+  // Memos with due dates or start dates in this month (mark all days in range)
+  memos.forEach(m=>{
+    const s=m.startDate?new Date(m.startDate):null, d=m.due?new Date(m.due):null;
+    if(s&&d){
+      // Mark all days in range that fall in this month
+      const rangeStart=new Date(Math.max(s.getTime(),new Date(currentYear,currentMonth,1).getTime()));
+      const rangeEnd=new Date(Math.min(d.getTime(),new Date(currentYear,currentMonth+1,0).getTime()));
+      for(let dt=new Date(rangeStart);dt<=rangeEnd;dt.setDate(dt.getDate()+1)){
+        if(dt.getFullYear()===currentYear&&dt.getMonth()===currentMonth) td.add(dt.getDate());
+      }
+    } else if(s&&s.getFullYear()===currentYear&&s.getMonth()===currentMonth){
+      td.add(s.getDate());
+    } else if(d&&d.getFullYear()===currentYear&&d.getMonth()===currentMonth){
+      td.add(d.getDate());
+    }
+  });
   let html='';['일','월','화','수','목','금','토'].forEach(d=>html+=`<div class="cal-header">${d}</div>`);
   for(let i=0;i<fd;i++)html+=`<div class="cal-day empty"></div>`;
   for(let d=1;d<=dim;d++){
@@ -925,11 +997,12 @@ function selectDay(day){
     items.push({type:'weekly',name:t.name,time:t.time||'',checked,priority:t.priority||'medium',days:t.days,tid:t.id});
   });
 
-  // 3) Monthly tasks for this day
+  // 3) Monthly tasks for this day (use per-month checks)
+  const selMonthlyChecks=getMonthlyChecks(currentYear,currentMonth);
   monthlyTasks.filter(mt=>day>=mt.day&&day<=(mt.endDay||mt.day)).forEach(mt=>{
     mt.tasks.forEach((tn,i)=>{
       const tid=`m_${mt.day}_${i}`;
-      const checked=!!dayChecks[tid];
+      const checked=!!selMonthlyChecks[tid];
       totalCount++; if(checked) doneCount++;
       const cat=categoryLabels[mt.category];
       const period=mt.endDay>mt.day?`${mt.day}~${mt.endDay}일`:'';
@@ -937,12 +1010,22 @@ function selectDay(day){
     });
   });
 
-  // 4) Memos with due date on this day
+  // 4) Memos matching this day (by start~due range or due date)
   const dateStr=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-  memos.filter(m=>m.due===dateStr).forEach(m=>{
+  memos.filter(m=>{
+    const s=m.startDate||'', d=m.due||'';
+    if(s&&d) return dateStr>=s&&dateStr<=d;
+    if(s) return dateStr>=s;
+    if(d) return dateStr===d;
+    return false;
+  }).forEach(m=>{
     const checked=!!m.done;
     totalCount++; if(checked) doneCount++;
-    items.push({type:'memo',name:m.title,time:m.due?'마감':'',checked,color:m.color||'blue',tid:m.id});
+    let timeLabel='';
+    if(m.startDate&&m.due) timeLabel=m.startDate===dateStr?'시작':dateStr===m.due?'마감':'진행중';
+    else if(m.due) timeLabel='마감';
+    else if(m.startDate) timeLabel='시작';
+    items.push({type:'memo',name:m.title,time:timeLabel,checked,color:m.color||'blue',tid:m.id});
   });
 
   if(!items.length){
@@ -971,7 +1054,7 @@ function selectDay(day){
       const checkIcon=it.checked?'✓':'';
       const itemCls=it.checked?'item-checked':'';
       const sub=it.time?`<span class="ddi-time">${it.time}</span>`:'';
-      const clickAction=it.type==='memo'?`toggleMemoDone('${it.tid}')`:`toggleTask('${it.tid}','${selDateKey}')`;
+      const clickAction=it.type==='memo'?`toggleMemoDone('${it.tid}')`:it.type==='monthly'?`toggleMonthlyTask('${it.tid}',${currentYear},${currentMonth})`:`toggleTask('${it.tid}','${selDateKey}')`;
       h+=`<div class="day-detail-item ${itemCls}" onclick="${clickAction}" style="cursor:pointer"><div class="ddi-check ${checkCls}">${checkIcon}</div><span class="ddi-name">${escHtml(it.name)}</span><span class="ddi-type ddi-type-${type}">${tl.label.replace(' 업무','')}</span>${sub}</div>`;
     });
     h+=`</div>`;
@@ -985,18 +1068,15 @@ function updateStats(){
   // Today's checks for daily & weekly
   let tot=dailyTasks.length,done=dailyTasks.filter(t=>checkedTasks[t.id]).length;
   const wt=weeklyTasks[todayDay]||[];tot+=wt.length;done+=wt.filter(t=>checkedTasks[t.id]).length;
-  // Monthly: use the specific day's checks
+  // Monthly: use per-month checks
+  const curMC=getMonthlyChecks(now.getFullYear(),now.getMonth());
   monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day)).forEach(m=>{
-    const mKey=getDateKey(currentYear,currentMonth,m.day);
-    const mChecks=getChecksForDate(mKey);
-    tot+=m.tasks.length;m.tasks.forEach((_,i)=>{if(mChecks[`m_${m.day}_${i}`])done++;});
+    tot+=m.tasks.length;m.tasks.forEach((_,i)=>{if(curMC[`m_${m.day}_${i}`])done++;});
   });
   document.getElementById('statToday').textContent=tot;document.getElementById('statDone').textContent=done;
   const p=tot>0?Math.round(done/tot*100):0;document.getElementById('statDonePercent').textContent=p+'%';document.getElementById('progressToday').style.width=p+'%';
   const rem=monthlyTasks.filter(m=>{
-    const mKey=getDateKey(currentYear,currentMonth,m.day);
-    const mChecks=getChecksForDate(mKey);
-    return m.day>=today&&!m.tasks.every((_,i)=>mChecks[`m_${m.day}_${i}`]);
+    return m.day>=today&&!m.tasks.every((_,i)=>curMC[`m_${m.day}_${i}`]);
   });
   document.getElementById('statMonthly').textContent=rem.length;document.getElementById('statMonthlyNext').textContent=rem.length?`다음: ${rem[0].day}일`:'없음';
   // Weekly stats: check each day of the current week
@@ -1026,7 +1106,7 @@ function openAddModal(preType){
   document.getElementById('btnDelete').style.display='none';
   document.getElementById('fName').value='';document.getElementById('fTime').value='';
   document.getElementById('fDay').value='';document.getElementById('fEndDay').value='';
-  document.getElementById('fMemoBody').value='';document.getElementById('fMemoDue').value='';
+  document.getElementById('fMemoBody').value='';document.getElementById('fMemoStart').value='';document.getElementById('fMemoDue').value='';
   document.getElementById('fMemoTags').value='';document.getElementById('fMemoPinned').checked=false;
   document.getElementById('fMemoColor').value='yellow';
   if(preType)document.getElementById('fType').value=preType;
@@ -1061,6 +1141,7 @@ function openEditModal(type, id){
     const m=memos.find(x=>x.id===id);if(!m)return;
     document.getElementById('fName').value=m.title;
     document.getElementById('fMemoBody').value=m.body||'';
+    document.getElementById('fMemoStart').value=m.startDate||'';
     document.getElementById('fMemoDue').value=m.due||'';
     document.getElementById('fMemoColor').value=m.color||'yellow';
     document.getElementById('fMemoTags').value=(m.tags||[]).join(', ');
@@ -1114,15 +1195,16 @@ function saveTask(){
     saveData('monthly',monthlyTasks);
   } else if(type==='memo'){
     const body=document.getElementById('fMemoBody').value.trim();
+    const startDate=document.getElementById('fMemoStart').value;
     const due=document.getElementById('fMemoDue').value;
     const color=document.getElementById('fMemoColor').value;
     const tags=document.getElementById('fMemoTags').value.split(',').map(s=>s.trim()).filter(Boolean);
     const pinned=document.getElementById('fMemoPinned').checked;
     if(editingType==='memo'&&editingId){
       const m=memos.find(x=>x.id===editingId);
-      if(m){m.title=name;m.body=body;m.due=due;m.color=color;m.tags=tags;m.pinned=pinned;m.updatedAt=new Date().toISOString();}
+      if(m){m.title=name;m.body=body;m.startDate=startDate;m.due=due;m.color=color;m.tags=tags;m.pinned=pinned;m.updatedAt=new Date().toISOString();}
     } else {
-      memos.unshift({id:'memo_'+Date.now(),title:name,body,due,color,tags,pinned,done:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+      memos.unshift({id:'memo_'+Date.now(),title:name,body,startDate,due,color,tags,pinned,done:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
     }
     saveData('memos',memos);
   }
@@ -1289,12 +1371,11 @@ function checkNotifications(){
   // 5) Overdue critical alert (09:30, 15:00)
   if(((h===9&&m===30)||(h===15&&m===0))&&notifSettings.overdue&&!notifSentKeys['overdue_'+h]){
     const overdue=[];
+    const notifMC=getMonthlyChecks(now.getFullYear(),now.getMonth());
     monthlyTasks.forEach(mt=>{
       const ed=mt.endDay||mt.day;
       if(ed<today){
-        const mtKey=getDateKey(now.getFullYear(),now.getMonth(),mt.day);
-        const mtChecks=getChecksForDate(mtKey);
-        const allDone=mt.tasks.every((_,i)=>mtChecks[`m_${mt.day}_${i}`]);
+        const allDone=mt.tasks.every((_,i)=>notifMC[`m_${mt.day}_${i}`]);
         if(!allDone) overdue.push(`${mt.day}일: ${mt.tasks[0]}`);
       }
     });
@@ -1353,15 +1434,14 @@ function checkWarnings(){
   const dayNames=['일','월','화','수','목','금','토'];
   let warnings=[];
 
-  // 1) Monthly tasks: overdue (past day, not completed)
+  // 1) Monthly tasks: overdue (past day, not completed) — use per-month checks
+  const warnMC=getMonthlyChecks(now.getFullYear(),now.getMonth());
   monthlyTasks.forEach(mt=>{
     const endDay=mt.endDay||mt.day;
     if(endDay<today){
-      const mtKey=getDateKey(now.getFullYear(),now.getMonth(),mt.day);
-      const mtChecks=getChecksForDate(mtKey);
-      const allDone=mt.tasks.every((_,i)=>mtChecks[`m_${mt.day}_${i}`]);
+      const allDone=mt.tasks.every((_,i)=>warnMC[`m_${mt.day}_${i}`]);
       if(!allDone){
-        const undone=mt.tasks.filter((_,i)=>!mtChecks[`m_${mt.day}_${i}`]);
+        const undone=mt.tasks.filter((_,i)=>!warnMC[`m_${mt.day}_${i}`]);
         warnings.push({
           level:'critical', type:'monthly', icon:'🗓',
           text:`<strong>${mt.day}일</strong> 월간 업무 미완료 — ${undone.join(', ')}`,
@@ -1374,11 +1454,9 @@ function checkWarnings(){
 
   // 2) Monthly tasks: due today but not done
   monthlyTasks.filter(mt=>today>=mt.day&&today<=(mt.endDay||mt.day)).forEach(mt=>{
-    const mtKey=getDateKey(now.getFullYear(),now.getMonth(),mt.day);
-    const mtChecks=getChecksForDate(mtKey);
-    const allDone=mt.tasks.every((_,i)=>mtChecks[`m_${mt.day}_${i}`]);
+    const allDone=mt.tasks.every((_,i)=>warnMC[`m_${mt.day}_${i}`]);
     if(!allDone){
-      const undone=mt.tasks.filter((_,i)=>!mtChecks[`m_${mt.day}_${i}`]);
+      const undone=mt.tasks.filter((_,i)=>!warnMC[`m_${mt.day}_${i}`]);
       const isLastDay=today===(mt.endDay||mt.day);
       if(isLastDay){
         warnings.push({
@@ -1553,10 +1631,11 @@ function renderOverview(){
   const todayStr=now.toISOString().slice(0,10);
   const urgentMemos=memos.filter(m=>!m.done&&m.due&&m.due<=todayStr);
 
-  // Counts (today's checks for daily/weekly, per-date for monthly)
+  // Counts (today's checks for daily/weekly, per-month for monthly)
   const dTotal=dailyTasks.length, dDone=dailyTasks.filter(t=>checkedTasks[t.id]).length;
   const wTotal=wt.length, wDone=wt.filter(t=>checkedTasks[t.id]).length;
-  let mTotal=0,mDone=0;mt.forEach(m=>{const mKey=getDateKey(now.getFullYear(),now.getMonth(),m.day);const mc=getChecksForDate(mKey);mTotal+=m.tasks.length;m.tasks.forEach((_,i)=>{if(mc[`m_${m.day}_${i}`])mDone++;});});
+  const ovMC=getMonthlyChecks(now.getFullYear(),now.getMonth());
+  let mTotal=0,mDone=0;mt.forEach(m=>{mTotal+=m.tasks.length;m.tasks.forEach((_,i)=>{if(ovMC[`m_${m.day}_${i}`])mDone++;});});
   const allTotal=dTotal+wTotal+mTotal, allDone=dDone+wDone+mDone;
 
   let html='';
@@ -1602,7 +1681,7 @@ function renderOverview(){
   // Monthly tasks for today
   if(mt.length){
     html+=`<div class="ov-timeline-item"><div class="ov-timeline-dot dot-warn"></div><div class="ov-timeline-time">📌 오늘의 월간 업무 (${today}일)</div><div class="ov-grid">`;
-    mt.forEach(m=>{const mKey=getDateKey(now.getFullYear(),now.getMonth(),m.day);const mc=getChecksForDate(mKey);const cat=categoryLabels[m.category];m.tasks.forEach((tn,i)=>{const tid=`m_${m.day}_${i}`,ck=mc[tid];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleTask('${tid}','${mKey}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-monthly">월간</span><span class="ov-card-name">${tn} <span class="category ${cat.class}">${cat.label}</span></span>${m.period?`<span class="ov-card-sub">${m.period}</span>`:''}</div>`;});});
+    mt.forEach(m=>{const cat=categoryLabels[m.category];m.tasks.forEach((tn,i)=>{const tid=`m_${m.day}_${i}`,ck=ovMC[tid];html+=`<div class="ov-card ${ck?'ov-checked':''}" onclick="toggleMonthlyTask('${tid}')"><div class="task-check ${ck?'checked':''}"></div><span class="ov-type-badge ov-type-monthly">월간</span><span class="ov-card-name">${tn} <span class="category ${cat.class}">${cat.label}</span></span>${m.period?`<span class="ov-card-sub">${m.period}</span>`:''}</div>`;});});
     html+=`</div></div>`;
   }
 
@@ -1720,6 +1799,7 @@ function generateWeeklyReport(){
     const dk=dayMap[d.getDay()];
     const dateKey=getDateKey(d.getFullYear(),d.getMonth(),d.getDate());
     const checks=getChecksForDate(dateKey);
+    const rpMC=getMonthlyChecks(d.getFullYear(),d.getMonth());
     let dayTotal=0,dayDone=0;
     const tasks=[];
 
@@ -1733,11 +1813,11 @@ function generateWeeklyReport(){
       dayTotal++;const done=!!checks[t.id];if(done)dayDone++;
       tasks.push({name:t.name,type:'주간',done});
     });
-    // Monthly
+    // Monthly (per-month checks)
     monthlyTasks.filter(mt=>d.getDate()>=mt.day&&d.getDate()<=(mt.endDay||mt.day)).forEach(mt=>{
       mt.tasks.forEach((tn,idx)=>{
         const tid=`m_${mt.day}_${idx}`;
-        dayTotal++;const done=!!checks[tid];if(done)dayDone++;
+        dayTotal++;const done=!!rpMC[tid];if(done)dayDone++;
         tasks.push({name:tn,type:'월간',done});
       });
     });
@@ -1822,6 +1902,8 @@ function generateMonthlyReport(){
   const weekData=[];
 
   // Process each day of the month
+  const rpMonthMC=getMonthlyChecks(mr.year,mr.month);
+  const countedMonthly=new Set(); // avoid double-counting monthly across days
   for(let d=1;d<=mr.days;d++){
     const dt=new Date(mr.year,mr.month,d);
     const dk=dayMap[dt.getDay()];
@@ -1836,11 +1918,14 @@ function generateMonthlyReport(){
       weeklyTotal++;totalTasks++;
       if(checks[t.id]){weeklyDone++;totalDone++;}
     });
-    monthlyTasks.filter(mt=>d>=mt.day&&d<=(mt.endDay||mt.day)).forEach(mt=>{
+    monthlyTasks.filter(mt=>d===mt.day).forEach(mt=>{
       mt.tasks.forEach((tn,idx)=>{
         const tid=`m_${mt.day}_${idx}`;
-        monthlyTotal++;totalTasks++;
-        if(checks[tid]){monthlyDone++;totalDone++;}
+        if(!countedMonthly.has(tid)){
+          countedMonthly.add(tid);
+          monthlyTotal++;totalTasks++;
+          if(rpMonthMC[tid]){monthlyDone++;totalDone++;}
+        }
       });
     });
   }
@@ -1852,6 +1937,7 @@ function generateMonthlyReport(){
     if(dt.getDay()===0&&d>1||d===mr.days){
       const wEnd=d;
       let wTotal=0,wDone=0;
+      const wkMtCounted=new Set();
       for(let dd=wStart;dd<=wEnd;dd++){
         const ddt=new Date(mr.year,mr.month,dd);
         const dk=dayMap[ddt.getDay()];
@@ -1859,8 +1945,8 @@ function generateMonthlyReport(){
         const checks=getChecksForDate(dateKey);
         dailyTasks.forEach(t=>{wTotal++;if(checks[t.id])wDone++;});
         (weeklyTasks[dk]||[]).forEach(t=>{wTotal++;if(checks[t.id])wDone++;});
-        monthlyTasks.filter(mt=>dd>=mt.day&&dd<=(mt.endDay||mt.day)).forEach(mt=>{
-          mt.tasks.forEach((_,i)=>{wTotal++;if(checks[`m_${mt.day}_${i}`])wDone++;});
+        monthlyTasks.filter(mt=>dd===mt.day).forEach(mt=>{
+          mt.tasks.forEach((_,i)=>{const tid=`m_${mt.day}_${i}`;if(!wkMtCounted.has(tid)){wkMtCounted.add(tid);wTotal++;if(rpMonthMC[tid])wDone++;}});
         });
       }
       weekData.push({num:weekNum,start:wStart,end:wEnd,total:wTotal,done:wDone});
@@ -1894,11 +1980,9 @@ function generateMonthlyReport(){
   // Monthly tasks detail
   h+=`<div class="report-section"><h3>🗓 월간 업무 이행 현황</h3><table class="report-table"><thead><tr><th>날짜</th><th>업무</th><th>카테고리</th><th>상태</th></tr></thead><tbody>`;
   monthlyTasks.forEach(mt=>{
-    const mtKey=getDateKey(mr.year,mr.month,mt.day);
-    const mtChecks=getChecksForDate(mtKey);
     const cat=categoryLabels[mt.category];
     mt.tasks.forEach((tn,i)=>{
-      const done=!!mtChecks[`m_${mt.day}_${i}`];
+      const done=!!rpMonthMC[`m_${mt.day}_${i}`];
       h+=`<tr><td>${mt.day}일${mt.endDay>mt.day?'~'+mt.endDay+'일':''}</td><td>${escHtml(tn)}</td><td>${cat.label}</td><td class="${done?'rt-done':'rt-miss'}">${done?'✅ 완료':'❌ 미완료'}</td></tr>`;
     });
   });
@@ -1922,10 +2006,8 @@ function generateMonthlyReport(){
   });
   txt+=`\n■ 월간 업무 이행\n`;
   monthlyTasks.forEach(mt=>{
-    const mtKey=getDateKey(mr.year,mr.month,mt.day);
-    const mtChecks=getChecksForDate(mtKey);
     mt.tasks.forEach((tn,i)=>{
-      const done=!!mtChecks[`m_${mt.day}_${i}`];
+      const done=!!rpMonthMC[`m_${mt.day}_${i}`];
       txt+=`  ${done?'✅':'❌'} ${mt.day}일 ${tn} [${categoryLabels[mt.category].label}]\n`;
     });
   });
@@ -1973,6 +2055,7 @@ function exportForClaude(){
       const dk=dayMap[d.getDay()];
       const dateKey=getDateKey(d.getFullYear(),d.getMonth(),d.getDate());
       const checks=getChecksForDate(dateKey);
+      const exMC=getMonthlyChecks(d.getFullYear(),d.getMonth());
       const dayInfo={date:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,dayName:dayKo[d.getDay()],tasks:[]};
       dailyTasks.forEach(t=>{
         dayInfo.tasks.push({name:t.name,type:'일간',period:t.period==='morning'?'오전':t.period==='afternoon'?'오후':'퇴근전',done:!!checks[t.id]});
@@ -1982,7 +2065,7 @@ function exportForClaude(){
       });
       monthlyTasks.filter(mt=>d.getDate()>=mt.day&&d.getDate()<=(mt.endDay||mt.day)).forEach(mt=>{
         mt.tasks.forEach((tn,idx)=>{
-          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!checks[`m_${mt.day}_${idx}`]});
+          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!exMC[`m_${mt.day}_${idx}`]});
         });
       });
       data.days.push(dayInfo);
@@ -1993,6 +2076,7 @@ function exportForClaude(){
     data.period=mr.label;
     data.company='GPA KOREA';
     data.days=[];
+    const exMC2=getMonthlyChecks(mr.year,mr.month);
     for(let d=1;d<=mr.days;d++){
       const dt=new Date(mr.year,mr.month,d);
       const dk=dayMap[dt.getDay()];
@@ -2007,7 +2091,7 @@ function exportForClaude(){
       });
       monthlyTasks.filter(mt=>d>=mt.day&&d<=(mt.endDay||mt.day)).forEach(mt=>{
         mt.tasks.forEach((tn,idx)=>{
-          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!checks[`m_${mt.day}_${idx}`]});
+          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!exMC2[`m_${mt.day}_${idx}`]});
         });
       });
       if(dayInfo.tasks.length>0) data.days.push(dayInfo);
@@ -2068,8 +2152,76 @@ function exportForClaude(){
   });
 }
 
+// ============ BACKUP & RESTORE ============
+function exportBackup(){
+  const backupData={_backupDate:new Date().toISOString(),_version:'1.0'};
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key.startsWith('gpa_')||key.startsWith('taskChecks_')||key.startsWith('monthlyChecks_')){
+      backupData[key]=localStorage.getItem(key);
+    }
+  }
+  const json=JSON.stringify(backupData,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const dateStr=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`gpa-korea-backup-${dateStr}.json`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  localStorage.setItem('gpa_last_backup',new Date().toISOString());
+  document.getElementById('backupReminder').style.display='none';
+  showToast('💾 백업 완료',`gpa-korea-backup-${dateStr}.json 파일로 저장되었습니다`);
+}
+
+function importBackup(){
+  document.getElementById('backupFileInput').click();
+}
+
+function handleBackupFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data._backupDate){showToast('❌ 오류','올바른 백업 파일이 아닙니다');return;}
+      const dateLabel=data._backupDate.slice(0,10);
+      const keyCount=Object.keys(data).filter(k=>!k.startsWith('_')).length;
+      if(!confirm(`📂 백업 복원 확인\n\n백업 날짜: ${dateLabel}\n복원 항목: ${keyCount}개\n\n현재 데이터는 덮어써집니다.\n계속하시겠습니까?`))return;
+      let count=0;
+      for(const[key,value] of Object.entries(data)){
+        if(key.startsWith('_'))continue;
+        localStorage.setItem(key,value);count++;
+      }
+      showToast('📂 복원 완료',`${count}개 항목 복원. 2초 후 새로고침됩니다...`);
+      setTimeout(()=>location.reload(),2000);
+    }catch(err){showToast('❌ 오류','파일 읽기 실패: '+err.message);}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+function checkBackupReminder(){
+  const reminder=document.getElementById('backupReminder');
+  if(!reminder)return;
+  const lastBackup=localStorage.getItem('gpa_last_backup');
+  if(!lastBackup){
+    reminder.style.display='flex';
+    document.getElementById('backupReminderMsg').textContent='아직 한 번도 백업하지 않았습니다. 브라우저 캐시 삭제 시 모든 데이터가 손실됩니다!';
+    return;
+  }
+  const daysSince=(Date.now()-new Date(lastBackup))/(1000*60*60*24);
+  if(daysSince>=7){
+    reminder.style.display='flex';
+    const days=Math.floor(daysSince);
+    document.getElementById('backupReminderMsg').textContent=`마지막 백업 후 ${days}일이 지났습니다. 브라우저 캐시 삭제 시 데이터가 손실될 수 있습니다.`;
+  } else {
+    reminder.style.display='none';
+  }
+}
+
 // ============ RENDER ALL ============
-function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();checkWarnings();}
+function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();checkWarnings();checkBackupReminder();}
 renderAll();
 // Auto-select today on load
 selectDay(new Date().getDate());
