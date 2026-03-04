@@ -279,6 +279,47 @@ select.form-input{cursor:pointer}
 .confirm-box p{font-size:14px;margin-bottom:16px;color:#e2e8f0}
 .confirm-box .btns{display:flex;gap:8px;justify-content:center}
 
+/* Report Modal */
+.report-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.report-overlay.show{display:flex}
+.report-modal{background:#0f172a;border:1px solid #334155;border-radius:16px;width:720px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.report-header{padding:20px 24px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:12px}
+.report-header h2{font-size:18px;color:#f8fafc;flex:1;display:flex;align-items:center;gap:8px}
+.report-tabs{display:flex;gap:4px;background:#1e293b;padding:3px;border-radius:8px}
+.report-tab{padding:6px 16px;border:none;background:transparent;color:#94a3b8;font-size:13px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s}
+.report-tab.active{background:#38bdf8;color:#0f172a;font-weight:600}
+.report-tab:hover:not(.active){color:#e2e8f0;background:#334155}
+.report-actions{display:flex;gap:6px}
+.report-act-btn{background:#334155;border:none;color:#94a3b8;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;transition:all .15s}
+.report-act-btn:hover{background:#475569;color:#e2e8f0}
+.report-act-btn.primary{background:#38bdf8;color:#0f172a}
+.report-act-btn.primary:hover{background:#7dd3fc}
+.report-act-btn.claude-btn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#0f172a;font-weight:700}
+.report-act-btn.claude-btn:hover{background:linear-gradient(135deg,#f59e0b,#fbbf24);transform:scale(1.03)}
+.report-body{flex:1;overflow-y:auto;padding:24px}
+.report-section{margin-bottom:24px}
+.report-section h3{font-size:15px;color:#38bdf8;margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:6px;border-bottom:1px solid #1e293b}
+.report-table{width:100%;border-collapse:collapse}
+.report-table th{text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:1px solid #334155;background:#1e293b}
+.report-table td{padding:8px 12px;font-size:13px;color:#e2e8f0;border-bottom:1px solid #1e293b}
+.report-table tr:hover td{background:#1e293b44}
+.rt-done{color:#4ade80}.rt-miss{color:#f87171}.rt-partial{color:#fbbf24}
+.report-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.report-stat{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:14px;text-align:center}
+.report-stat .rs-val{font-size:24px;font-weight:700;color:#f8fafc}
+.report-stat .rs-label{font-size:11px;color:#64748b;margin-top:2px}
+.report-stat .rs-bar{height:4px;background:#334155;border-radius:2px;margin-top:8px;overflow:hidden}
+.report-stat .rs-fill{height:100%;border-radius:2px}
+.report-close{background:none;border:none;color:#64748b;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}
+.report-close:hover{background:#334155;color:#e2e8f0}
+.report-date-nav{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.report-date-nav button{background:#334155;border:none;color:#e2e8f0;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:13px}
+.report-date-nav button:hover{background:#475569}
+.report-date-nav span{font-size:14px;font-weight:600;color:#f8fafc;min-width:160px;text-align:center}
+.report-text-area{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px;font-size:13px;color:#e2e8f0;line-height:1.8;white-space:pre-wrap;font-family:inherit;max-height:400px;overflow-y:auto}
+.report-btn{background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;color:#0f172a;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;transition:all .15s}
+.report-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(56,189,248,.3)}
+
 @media(max-width:1200px){.main{flex-direction:column}.sidebar{width:100%;min-width:auto;border-right:none;border-bottom:1px solid #334155}.stats-row{grid-template-columns:repeat(2,1fr)}.weekly-grid{grid-template-columns:repeat(3,1fr)}.monthly-grid{grid-template-columns:1fr}.clock-section{flex-direction:column}.clock-visual{width:100%;min-width:auto}}
 </style>
 </head>
@@ -318,6 +359,7 @@ select.form-input{cursor:pointer}
         <div style="margin-top:12px;font-size:11px;color:#64748b">* 브라우저 탭이 열려있어야 알림이 작동합니다</div>
       </div>
     </div>
+    <button class="report-btn" onclick="openReport()">📊 업무 리포트</button>
     <div style="text-align:right">
       <div class="clock-display" id="liveClock">--:--:--</div>
       <div class="date-display" id="liveDate">---</div>
@@ -415,8 +457,8 @@ select.form-input{cursor:pointer}
       </div>
       <div class="form-row">
         <div class="form-group"><label>마감일 (선택)</label><input class="form-input" id="fMemoDue" type="date"></div>
-        <div class="form-group"><label>색상</label>
-          <select class="form-input" id="fMemoColor"><option value="yellow">🟡 노랑</option><option value="blue">🔵 파랑</option><option value="green">🟢 초록</option><option value="red">🔴 빨강</option><option value="purple">🟣 보라</option></select>
+        <div class="form-group"><label>중요도</label>
+          <select class="form-input" id="fMemoColor"><option value="yellow">🟡 일반</option><option value="blue">🔵 참고</option><option value="green">🟢 낮음</option><option value="red">🔴 긴급</option><option value="purple">🟣 중요</option></select>
         </div>
       </div>
       <div class="form-group"><label>태그 (쉼표로 구분)</label><input class="form-input" id="fMemoTags" placeholder="예: 긴급, 회의, 아이디어"></div>
@@ -437,6 +479,39 @@ select.form-input{cursor:pointer}
     <div class="btns">
       <button class="btn btn-secondary" onclick="closeConfirm()">취소</button>
       <button class="btn btn-danger" onclick="confirmAction()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="report-overlay" id="reportOverlay">
+  <div class="report-modal">
+    <div class="report-header">
+      <h2>📊 업무 리포트</h2>
+      <div class="report-tabs">
+        <button class="report-tab active" onclick="switchReportTab('weekly',this)">주간</button>
+        <button class="report-tab" onclick="switchReportTab('monthly',this)">월간</button>
+      </div>
+      <div class="report-actions">
+        <button class="report-act-btn" onclick="copyReport()" title="클립보드 복사">📋 복사</button>
+        <button class="report-act-btn" onclick="downloadReport()" title="텍스트 파일 다운로드">💾 다운로드</button>
+        <button class="report-act-btn primary" onclick="copyReportFormatted()" title="서식 포함 복사">📄 서식복사</button>
+        <button class="report-act-btn claude-btn" onclick="exportForClaude()" title="Claude에게 전달할 데이터 복사">🤖 Claude 리포트</button>
+      </div>
+      <button class="report-close" onclick="closeReport()">✕</button>
+    </div>
+    <div class="report-body">
+      <div class="report-date-nav">
+        <button onclick="navReport(-1)">◀ 이전</button>
+        <span id="reportPeriodLabel">---</span>
+        <button onclick="navReport(1)">다음 ▶</button>
+      </div>
+      <div id="reportStats"></div>
+      <div id="reportContent"></div>
+      <div class="report-section">
+        <h3>📝 텍스트 리포트 (복사/다운로드용)</h3>
+        <div class="report-text-area" id="reportText"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -499,6 +574,7 @@ let memos = loadData('memos', []);
 let memoFilter = 'all';
 
 const categoryLabels = { settlement:{label:'정산',class:'cat-settlement'}, accounting:{label:'회계',class:'cat-accounting'}, hr:{label:'인사',class:'cat-hr'}, general:{label:'총무',class:'cat-general'} };
+const priorityLabels = { yellow:'일반', blue:'참고', green:'낮음', red:'긴급', purple:'중요' };
 const dayNameToKey = {'월':'mon','화':'tue','수':'wed','목':'thu','금':'fri'};
 const keyToDayName = {mon:'월',tue:'화',wed:'수',thu:'목',fri:'금'};
 
@@ -1453,6 +1529,392 @@ function renderOverview(){
   html+=`</div></div>`;
 
   c.innerHTML=html;
+}
+
+// ============ REPORT SYSTEM ============
+let reportMode='weekly', reportOffset=0;
+
+function openReport(){
+  reportOffset=0;
+  document.getElementById('reportOverlay').classList.add('show');
+  generateReport();
+}
+function closeReport(){document.getElementById('reportOverlay').classList.remove('show');}
+function switchReportTab(mode,el){
+  reportMode=mode;reportOffset=0;
+  document.querySelectorAll('.report-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  generateReport();
+}
+function navReport(dir){reportOffset+=dir;generateReport();}
+
+function getWeekRange(offset){
+  const now=new Date();
+  const mon=new Date(now);
+  const dow=now.getDay();
+  mon.setDate(now.getDate()-((dow+6)%7)+(offset*7));
+  const fri=new Date(mon);fri.setDate(mon.getDate()+4);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  return {start:mon, end:sun, label:`${mon.getMonth()+1}/${mon.getDate()} ~ ${sun.getMonth()+1}/${sun.getDate()} (${mon.getFullYear()})`};
+}
+function getMonthRange(offset){
+  const now=new Date();
+  const y=now.getFullYear(), m=now.getMonth()+offset;
+  const dt=new Date(y,m,1);
+  const dim=new Date(dt.getFullYear(),dt.getMonth()+1,0).getDate();
+  return {year:dt.getFullYear(), month:dt.getMonth(), days:dim, label:`${dt.getFullYear()}년 ${dt.getMonth()+1}월`};
+}
+
+function generateReport(){
+  if(reportMode==='weekly') generateWeeklyReport();
+  else generateMonthlyReport();
+}
+
+function generateWeeklyReport(){
+  const week=getWeekRange(reportOffset);
+  document.getElementById('reportPeriodLabel').textContent=`📅 ${week.label}`;
+
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const dayNames=['일','월','화','수','목','금','토'];
+  const days=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(week.start);d.setDate(week.start.getDate()+i);
+    days.push(d);
+  }
+
+  let totalTasks=0,totalDone=0;
+  const dayData=[];
+
+  days.forEach(d=>{
+    const dk=dayMap[d.getDay()];
+    const dateKey=getDateKey(d.getFullYear(),d.getMonth(),d.getDate());
+    const checks=getChecksForDate(dateKey);
+    let dayTotal=0,dayDone=0;
+    const tasks=[];
+
+    // Daily
+    dailyTasks.forEach(t=>{
+      dayTotal++;const done=!!checks[t.id];if(done)dayDone++;
+      tasks.push({name:t.name,type:'일간',done});
+    });
+    // Weekly
+    (weeklyTasks[dk]||[]).forEach(t=>{
+      dayTotal++;const done=!!checks[t.id];if(done)dayDone++;
+      tasks.push({name:t.name,type:'주간',done});
+    });
+    // Monthly
+    monthlyTasks.filter(mt=>d.getDate()>=mt.day&&d.getDate()<=(mt.endDay||mt.day)).forEach(mt=>{
+      mt.tasks.forEach((tn,idx)=>{
+        const tid=`m_${mt.day}_${idx}`;
+        dayTotal++;const done=!!checks[tid];if(done)dayDone++;
+        tasks.push({name:tn,type:'월간',done});
+      });
+    });
+
+    totalTasks+=dayTotal;totalDone+=dayDone;
+    dayData.push({date:d,dk,dateKey,total:dayTotal,done:dayDone,tasks});
+  });
+
+  const pct=totalTasks>0?Math.round(totalDone/totalTasks*100):0;
+
+  // Stats
+  let sh=`<div class="report-stat-row">
+    <div class="report-stat"><div class="rs-val">${totalTasks}</div><div class="rs-label">전체 업무</div></div>
+    <div class="report-stat"><div class="rs-val" style="color:#4ade80">${totalDone}</div><div class="rs-label">완료</div></div>
+    <div class="report-stat"><div class="rs-val" style="color:#f87171">${totalTasks-totalDone}</div><div class="rs-label">미완료</div></div>
+    <div class="report-stat"><div class="rs-val" style="color:#38bdf8">${pct}%</div><div class="rs-label">달성률</div><div class="rs-bar"><div class="rs-fill" style="width:${pct}%;background:linear-gradient(90deg,#38bdf8,#818cf8)"></div></div></div>
+  </div>`;
+  document.getElementById('reportStats').innerHTML=sh;
+
+  // Table
+  let h=`<div class="report-section"><h3>📋 일별 상세</h3><table class="report-table"><thead><tr><th>날짜</th><th>요일</th><th>전체</th><th>완료</th><th>미완료</th><th>달성률</th></tr></thead><tbody>`;
+  dayData.forEach(dd=>{
+    const dp=dd.total>0?Math.round(dd.done/dd.total*100):0;
+    const cls=dp===100?'rt-done':dp>=50?'rt-partial':'rt-miss';
+    h+=`<tr><td>${dd.date.getMonth()+1}/${dd.date.getDate()}</td><td>${dayNames[dd.date.getDay()]}</td><td>${dd.total}</td><td class="rt-done">${dd.done}</td><td class="${dd.total-dd.done>0?'rt-miss':''}">${dd.total-dd.done}</td><td class="${cls}">${dp}%</td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+
+  // Missed tasks summary
+  const missed=[];
+  dayData.forEach(dd=>{
+    dd.tasks.filter(t=>!t.done).forEach(t=>{
+      missed.push({date:`${dd.date.getMonth()+1}/${dd.date.getDate()}`,day:dayNames[dd.date.getDay()],name:t.name,type:t.type});
+    });
+  });
+  if(missed.length){
+    h+=`<div class="report-section"><h3>⚠️ 미완료 업무 (${missed.length}건)</h3><table class="report-table"><thead><tr><th>날짜</th><th>요일</th><th>업무</th><th>유형</th></tr></thead><tbody>`;
+    missed.slice(0,30).forEach(m=>{h+=`<tr><td>${m.date}</td><td>${m.day}</td><td class="rt-miss">${escHtml(m.name)}</td><td>${m.type}</td></tr>`;});
+    h+=`</tbody></table></div>`;
+  }
+  document.getElementById('reportContent').innerHTML=h;
+
+  // Text report
+  let txt=`========================================\n`;
+  txt+=`  GPA KOREA 주간 업무 리포트\n`;
+  txt+=`  ${week.label}\n`;
+  txt+=`========================================\n\n`;
+  txt+=`■ 요약\n`;
+  txt+=`  전체: ${totalTasks}건 | 완료: ${totalDone}건 | 미완료: ${totalTasks-totalDone}건 | 달성률: ${pct}%\n\n`;
+  txt+=`■ 일별 현황\n`;
+  dayData.forEach(dd=>{
+    const dp=dd.total>0?Math.round(dd.done/dd.total*100):0;
+    txt+=`  ${dd.date.getMonth()+1}/${dd.date.getDate()} (${dayNames[dd.date.getDay()]}) : ${dd.done}/${dd.total} (${dp}%)\n`;
+  });
+  txt+=`\n■ 완료 업무\n`;
+  dayData.forEach(dd=>{
+    const doneTasks=dd.tasks.filter(t=>t.done);
+    if(doneTasks.length){
+      txt+=`  [${dd.date.getMonth()+1}/${dd.date.getDate()} ${dayNames[dd.date.getDay()]}]\n`;
+      doneTasks.forEach(t=>txt+=`    ✅ ${t.name} (${t.type})\n`);
+    }
+  });
+  if(missed.length){
+    txt+=`\n■ 미완료 업무 (${missed.length}건)\n`;
+    missed.forEach(m=>txt+=`    ❌ ${m.date} (${m.day}) ${m.name} [${m.type}]\n`);
+  }
+  txt+=`\n========================================\n`;
+  txt+=`  생성일시: ${new Date().toLocaleString('ko-KR')}\n`;
+  txt+=`========================================`;
+  document.getElementById('reportText').textContent=txt;
+}
+
+function generateMonthlyReport(){
+  const mr=getMonthRange(reportOffset);
+  document.getElementById('reportPeriodLabel').textContent=`🗓 ${mr.label}`;
+
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const dayNames=['일','월','화','수','목','금','토'];
+
+  let totalTasks=0,totalDone=0;
+  let dailyTotal=0,dailyDone=0,weeklyTotal=0,weeklyDone=0,monthlyTotal=0,monthlyDone=0;
+  const weekData=[];
+
+  // Process each day of the month
+  for(let d=1;d<=mr.days;d++){
+    const dt=new Date(mr.year,mr.month,d);
+    const dk=dayMap[dt.getDay()];
+    const dateKey=getDateKey(mr.year,mr.month,d);
+    const checks=getChecksForDate(dateKey);
+
+    dailyTasks.forEach(t=>{
+      dailyTotal++;totalTasks++;
+      if(checks[t.id]){dailyDone++;totalDone++;}
+    });
+    (weeklyTasks[dk]||[]).forEach(t=>{
+      weeklyTotal++;totalTasks++;
+      if(checks[t.id]){weeklyDone++;totalDone++;}
+    });
+    monthlyTasks.filter(mt=>d>=mt.day&&d<=(mt.endDay||mt.day)).forEach(mt=>{
+      mt.tasks.forEach((tn,idx)=>{
+        const tid=`m_${mt.day}_${idx}`;
+        monthlyTotal++;totalTasks++;
+        if(checks[tid]){monthlyDone++;totalDone++;}
+      });
+    });
+  }
+
+  // Week-by-week breakdown
+  let weekNum=1,wStart=1;
+  for(let d=1;d<=mr.days;d++){
+    const dt=new Date(mr.year,mr.month,d);
+    if(dt.getDay()===0&&d>1||d===mr.days){
+      const wEnd=d;
+      let wTotal=0,wDone=0;
+      for(let dd=wStart;dd<=wEnd;dd++){
+        const ddt=new Date(mr.year,mr.month,dd);
+        const dk=dayMap[ddt.getDay()];
+        const dateKey=getDateKey(mr.year,mr.month,dd);
+        const checks=getChecksForDate(dateKey);
+        dailyTasks.forEach(t=>{wTotal++;if(checks[t.id])wDone++;});
+        (weeklyTasks[dk]||[]).forEach(t=>{wTotal++;if(checks[t.id])wDone++;});
+        monthlyTasks.filter(mt=>dd>=mt.day&&dd<=(mt.endDay||mt.day)).forEach(mt=>{
+          mt.tasks.forEach((_,i)=>{wTotal++;if(checks[`m_${mt.day}_${i}`])wDone++;});
+        });
+      }
+      weekData.push({num:weekNum,start:wStart,end:wEnd,total:wTotal,done:wDone});
+      weekNum++;wStart=d+1;
+    }
+  }
+
+  const pct=totalTasks>0?Math.round(totalDone/totalTasks*100):0;
+  const dPct=dailyTotal>0?Math.round(dailyDone/dailyTotal*100):0;
+  const wPct=weeklyTotal>0?Math.round(weeklyDone/weeklyTotal*100):0;
+  const mPct=monthlyTotal>0?Math.round(monthlyDone/monthlyTotal*100):0;
+
+  // Stats
+  let sh=`<div class="report-stat-row">
+    <div class="report-stat"><div class="rs-val" style="color:#38bdf8">${pct}%</div><div class="rs-label">전체 달성률</div><div class="rs-bar"><div class="rs-fill" style="width:${pct}%;background:linear-gradient(90deg,#38bdf8,#818cf8)"></div></div></div>
+    <div class="report-stat"><div class="rs-val">${dPct}%</div><div class="rs-label">일간 (${dailyDone}/${dailyTotal})</div><div class="rs-bar"><div class="rs-fill" style="width:${dPct}%;background:#38bdf8"></div></div></div>
+    <div class="report-stat"><div class="rs-val">${wPct}%</div><div class="rs-label">주간 (${weeklyDone}/${weeklyTotal})</div><div class="rs-bar"><div class="rs-fill" style="width:${wPct}%;background:#818cf8"></div></div></div>
+    <div class="report-stat"><div class="rs-val">${mPct}%</div><div class="rs-label">월간 (${monthlyDone}/${monthlyTotal})</div><div class="rs-bar"><div class="rs-fill" style="width:${mPct}%;background:#fbbf24"></div></div></div>
+  </div>`;
+  document.getElementById('reportStats').innerHTML=sh;
+
+  // Weekly breakdown table
+  let h=`<div class="report-section"><h3>📊 주차별 현황</h3><table class="report-table"><thead><tr><th>주차</th><th>기간</th><th>전체</th><th>완료</th><th>미완료</th><th>달성률</th></tr></thead><tbody>`;
+  weekData.forEach(w=>{
+    const wp=w.total>0?Math.round(w.done/w.total*100):0;
+    const cls=wp===100?'rt-done':wp>=50?'rt-partial':'rt-miss';
+    h+=`<tr><td>${w.num}주차</td><td>${w.start}일~${w.end}일</td><td>${w.total}</td><td class="rt-done">${w.done}</td><td class="${w.total-w.done>0?'rt-miss':''}">${w.total-w.done}</td><td class="${cls}">${wp}%</td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+
+  // Monthly tasks detail
+  h+=`<div class="report-section"><h3>🗓 월간 업무 이행 현황</h3><table class="report-table"><thead><tr><th>날짜</th><th>업무</th><th>카테고리</th><th>상태</th></tr></thead><tbody>`;
+  monthlyTasks.forEach(mt=>{
+    const mtKey=getDateKey(mr.year,mr.month,mt.day);
+    const mtChecks=getChecksForDate(mtKey);
+    const cat=categoryLabels[mt.category];
+    mt.tasks.forEach((tn,i)=>{
+      const done=!!mtChecks[`m_${mt.day}_${i}`];
+      h+=`<tr><td>${mt.day}일${mt.endDay>mt.day?'~'+mt.endDay+'일':''}</td><td>${escHtml(tn)}</td><td>${cat.label}</td><td class="${done?'rt-done':'rt-miss'}">${done?'✅ 완료':'❌ 미완료'}</td></tr>`;
+    });
+  });
+  h+=`</tbody></table></div>`;
+  document.getElementById('reportContent').innerHTML=h;
+
+  // Text report
+  let txt=`========================================\n`;
+  txt+=`  GPA KOREA 월간 업무 리포트\n`;
+  txt+=`  ${mr.label}\n`;
+  txt+=`========================================\n\n`;
+  txt+=`■ 종합 요약\n`;
+  txt+=`  전체 달성률: ${pct}% (${totalDone}/${totalTasks})\n`;
+  txt+=`  일간 업무: ${dPct}% (${dailyDone}/${dailyTotal})\n`;
+  txt+=`  주간 업무: ${wPct}% (${weeklyDone}/${weeklyTotal})\n`;
+  txt+=`  월간 업무: ${mPct}% (${monthlyDone}/${monthlyTotal})\n\n`;
+  txt+=`■ 주차별 현황\n`;
+  weekData.forEach(w=>{
+    const wp=w.total>0?Math.round(w.done/w.total*100):0;
+    txt+=`  ${w.num}주차 (${w.start}일~${w.end}일): ${w.done}/${w.total} (${wp}%)\n`;
+  });
+  txt+=`\n■ 월간 업무 이행\n`;
+  monthlyTasks.forEach(mt=>{
+    const mtKey=getDateKey(mr.year,mr.month,mt.day);
+    const mtChecks=getChecksForDate(mtKey);
+    mt.tasks.forEach((tn,i)=>{
+      const done=!!mtChecks[`m_${mt.day}_${i}`];
+      txt+=`  ${done?'✅':'❌'} ${mt.day}일 ${tn} [${categoryLabels[mt.category].label}]\n`;
+    });
+  });
+  txt+=`\n========================================\n`;
+  txt+=`  생성일시: ${new Date().toLocaleString('ko-KR')}\n`;
+  txt+=`========================================`;
+  document.getElementById('reportText').textContent=txt;
+}
+
+// Export functions
+function copyReport(){
+  const txt=document.getElementById('reportText').textContent;
+  navigator.clipboard.writeText(txt).then(()=>showToast('📋 복사 완료','리포트가 클립보드에 복사되었습니다'));
+}
+function copyReportFormatted(){
+  const html=document.getElementById('reportStats').innerHTML+document.getElementById('reportContent').innerHTML;
+  const blob=new Blob([html],{type:'text/html'});
+  const txt=document.getElementById('reportText').textContent;
+  navigator.clipboard.write([new ClipboardItem({'text/html':blob,'text/plain':new Blob([txt],{type:'text/plain'})})]).then(()=>showToast('📄 서식복사 완료','서식 포함 리포트가 복사되었습니다'));
+}
+function downloadReport(){
+  const txt=document.getElementById('reportText').textContent;
+  const period=document.getElementById('reportPeriodLabel').textContent.replace(/[^0-9가-힣~/]/g,'').trim();
+  const filename=`GPA_업무리포트_${reportMode==='weekly'?'주간':'월간'}_${period}.txt`;
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('💾 다운로드','리포트 파일이 다운로드되었습니다');
+}
+
+function exportForClaude(){
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const dayKo=['일','월','화','수','목','금','토'];
+  const priorityLabels={yellow:'일반',blue:'참고',green:'낮음',red:'긴급',purple:'중요'};
+  let data={};
+
+  if(reportMode==='weekly'){
+    const week=getWeekRange(reportOffset);
+    data.type='주간';
+    data.period=week.label;
+    data.company='GPA KOREA';
+    data.days=[];
+    for(let i=0;i<7;i++){
+      const d=new Date(week.start);d.setDate(week.start.getDate()+i);
+      const dk=dayMap[d.getDay()];
+      const dateKey=getDateKey(d.getFullYear(),d.getMonth(),d.getDate());
+      const checks=getChecksForDate(dateKey);
+      const dayInfo={date:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,dayName:dayKo[d.getDay()],tasks:[]};
+      dailyTasks.forEach(t=>{
+        dayInfo.tasks.push({name:t.name,type:'일간',period:t.period==='morning'?'오전':t.period==='afternoon'?'오후':'퇴근전',done:!!checks[t.id]});
+      });
+      (weeklyTasks[dk]||[]).forEach(t=>{
+        dayInfo.tasks.push({name:t.name,type:'주간',done:!!checks[t.id]});
+      });
+      monthlyTasks.filter(mt=>d.getDate()>=mt.day&&d.getDate()<=(mt.endDay||mt.day)).forEach(mt=>{
+        mt.tasks.forEach((tn,idx)=>{
+          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!checks[`m_${mt.day}_${idx}`]});
+        });
+      });
+      data.days.push(dayInfo);
+    }
+  } else {
+    const mr=getMonthRange(reportOffset);
+    data.type='월간';
+    data.period=mr.label;
+    data.company='GPA KOREA';
+    data.days=[];
+    for(let d=1;d<=mr.days;d++){
+      const dt=new Date(mr.year,mr.month,d);
+      const dk=dayMap[dt.getDay()];
+      const dateKey=getDateKey(mr.year,mr.month,d);
+      const checks=getChecksForDate(dateKey);
+      const dayInfo={date:`${mr.year}-${mr.month+1}-${d}`,dayName:dayKo[dt.getDay()],tasks:[]};
+      dailyTasks.forEach(t=>{
+        dayInfo.tasks.push({name:t.name,type:'일간',period:t.period==='morning'?'오전':t.period==='afternoon'?'오후':'퇴근전',done:!!checks[t.id]});
+      });
+      (weeklyTasks[dk]||[]).forEach(t=>{
+        dayInfo.tasks.push({name:t.name,type:'주간',done:!!checks[t.id]});
+      });
+      monthlyTasks.filter(mt=>d>=mt.day&&d<=(mt.endDay||mt.day)).forEach(mt=>{
+        mt.tasks.forEach((tn,idx)=>{
+          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!checks[`m_${mt.day}_${idx}`]});
+        });
+      });
+      if(dayInfo.tasks.length>0) data.days.push(dayInfo);
+    }
+    // Add memo summary
+    const memos=JSON.parse(localStorage.getItem('gpa_memos')||'[]');
+    if(memos.length){
+      data.memos=memos.map(m=>({title:m.title,priority:priorityLabels[m.color]||m.color,done:!!m.done,date:m.date}));
+    }
+  }
+
+  // Build prompt text
+  let prompt=`아래는 GPA KOREA ${data.type} 업무 리포트 데이터입니다.\n`;
+  prompt+=`기간: ${data.period}\n\n`;
+  prompt+=`이 데이터를 기반으로 전문적인 ${data.type} 업무 리포트를 .docx 워드 파일로 작성해주세요.\n`;
+  prompt+=`리포트에 포함할 내용:\n`;
+  prompt+=`- 기간 및 요약 (전체 달성률, 카테고리별 달성률)\n`;
+  prompt+=`- 주요 성과 및 완료 업무\n`;
+  prompt+=`- 미완료/지연 업무 및 사유 분석\n`;
+  prompt+=`- 개선점 및 다음 기간 계획 제안\n\n`;
+  prompt+=`=== 데이터 시작 ===\n`;
+  prompt+=JSON.stringify(data,null,2);
+  prompt+=`\n=== 데이터 끝 ===`;
+
+  navigator.clipboard.writeText(prompt).then(()=>{
+    showToast('🤖 Claude 데이터 복사 완료','Claude에게 붙여넣기하면 전문 리포트를 작성해줍니다!');
+  }).catch(()=>{
+    // Fallback: show in textarea
+    const ta=document.createElement('textarea');
+    ta.value=prompt;ta.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;font-size:12px;padding:20px;background:#1e293b;color:#e2e8f0;border:none';
+    ta.setAttribute('readonly','');
+    const closeBtn=document.createElement('button');
+    closeBtn.textContent='✕ 닫기 (텍스트를 직접 복사하세요)';
+    closeBtn.style.cssText='position:fixed;top:5px;right:10px;z-index:100000;padding:8px 16px;background:#ef4444;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px';
+    closeBtn.onclick=()=>{ta.remove();closeBtn.remove();};
+    document.body.appendChild(ta);document.body.appendChild(closeBtn);
+    ta.select();
+  });
 }
 
 // ============ RENDER ALL ============
