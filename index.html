@@ -250,6 +250,23 @@ select.form-input{cursor:pointer}
 .btn-secondary{background:#334155;color:#e2e8f0}.btn-secondary:hover{background:#475569}
 .btn-danger{background:#ef444433;color:#f87171;border:1px solid #ef444444}.btn-danger:hover{background:#ef4444;color:#fff}
 
+/* Notification settings */
+.notif-btn{background:#334155;border:1px solid #475569;color:#94a3b8;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:inherit}
+.notif-btn:hover{background:#475569;color:#e2e8f0}
+.notif-btn.notif-on{background:#22c55e22;border-color:#22c55e;color:#4ade80}
+.notif-panel{position:absolute;top:100%;right:0;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:50;display:none;margin-top:8px}
+.notif-panel.show{display:block}
+.notif-panel h4{font-size:14px;color:#f8fafc;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.notif-option{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155;font-size:13px;color:#e2e8f0}
+.notif-option:last-child{border-bottom:none}
+.notif-option label{display:flex;align-items:center;gap:8px;cursor:pointer;flex:1}
+.notif-toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.notif-toggle input{opacity:0;width:0;height:0}
+.notif-slider{position:absolute;cursor:pointer;inset:0;background:#475569;border-radius:22px;transition:.3s}
+.notif-slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#94a3b8;border-radius:50%;transition:.3s}
+.notif-toggle input:checked+.notif-slider{background:#38bdf8}
+.notif-toggle input:checked+.notif-slider:before{transform:translateX(18px);background:#0f172a}
+
 /* Inline add row */
 .add-task-row{display:flex;align-items:center;gap:12px;padding:10px 16px;background:transparent;border:1px dashed #334155;border-radius:10px;margin-bottom:6px;cursor:pointer;transition:all .15s;color:#64748b;font-size:14px}
 .add-task-row:hover{border-color:#38bdf8;color:#38bdf8;background:#38bdf808}
@@ -285,9 +302,26 @@ select.form-input{cursor:pointer}
 <div id="appContent">
 <div class="header">
   <h1>⏰ <span>GPA KOREA</span> 업무 시계</h1>
-  <div style="text-align:right">
-    <div class="clock-display" id="liveClock">--:--:--</div>
-    <div class="date-display" id="liveDate">---</div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div style="position:relative">
+      <button class="notif-btn" id="notifBtn" onclick="toggleNotifPanel()">🔔 <span id="notifBtnLabel">알림 설정</span></button>
+      <div class="notif-panel" id="notifPanel">
+        <h4>🔔 시스템 알림 설정</h4>
+        <div id="notifPermStatus" style="font-size:11px;color:#64748b;margin-bottom:10px;padding:6px 10px;background:#0f172a;border-radius:6px"></div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:12px;font-size:13px" onclick="requestNotifPermission()">🔓 알림 권한 허용하기</button>
+        <div class="notif-option"><label>⏰ 출근 알림 (09:30)</label><label class="notif-toggle"><input type="checkbox" data-notif="morning" onchange="saveNotifSettings()" checked><span class="notif-slider"></span></label></div>
+        <div class="notif-option"><label>📌 월간 업무 알림</label><label class="notif-toggle"><input type="checkbox" data-notif="monthly" onchange="saveNotifSettings()" checked><span class="notif-slider"></span></label></div>
+        <div class="notif-option"><label>⚠️ 미완료 경고 (12:00)</label><label class="notif-toggle"><input type="checkbox" data-notif="incomplete" onchange="saveNotifSettings()" checked><span class="notif-slider"></span></label></div>
+        <div class="notif-option"><label>🚨 기한초과 긴급 알림</label><label class="notif-toggle"><input type="checkbox" data-notif="overdue" onchange="saveNotifSettings()" checked><span class="notif-slider"></span></label></div>
+        <div class="notif-option"><label>🌙 퇴근 전 알림 (18:00)</label><label class="notif-toggle"><input type="checkbox" data-notif="evening" onchange="saveNotifSettings()" checked><span class="notif-slider"></span></label></div>
+        <div class="notif-option"><label>📅 주간 업무 알림</label><label class="notif-toggle"><input type="checkbox" data-notif="weekly" onchange="saveNotifSettings()" checked><span class="notif-slider"></span></label></div>
+        <div style="margin-top:12px;font-size:11px;color:#64748b">* 브라우저 탭이 열려있어야 알림이 작동합니다</div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div class="clock-display" id="liveClock">--:--:--</div>
+      <div class="date-display" id="liveDate">---</div>
+    </div>
   </div>
 </div>
 <div class="main">
@@ -915,16 +949,198 @@ function deleteTask(){confirmDelete(editingType,editingId);}
 // ============ TOAST ============
 function showToast(t,m){const toast=document.getElementById('toast');document.getElementById('toastTitle').textContent=t;document.getElementById('toastMsg').textContent=m;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),4000);}
 
-// ============ NOTIFICATIONS ============
+// ============ SYSTEM NOTIFICATIONS ============
+// Notification settings
+let notifSettings=JSON.parse(localStorage.getItem('gpa_notif_settings')||'{"morning":true,"monthly":true,"incomplete":true,"overdue":true,"evening":true,"weekly":true}');
+let notifSentKeys=JSON.parse(localStorage.getItem('gpa_notif_sent_'+getTodayKey())||'{}');
+
+function saveNotifSettings(){
+  const inputs=document.querySelectorAll('[data-notif]');
+  inputs.forEach(inp=>{notifSettings[inp.dataset.notif]=inp.checked;});
+  localStorage.setItem('gpa_notif_settings',JSON.stringify(notifSettings));
+  updateNotifBtn();
+}
+function loadNotifSettings(){
+  const inputs=document.querySelectorAll('[data-notif]');
+  inputs.forEach(inp=>{inp.checked=!!notifSettings[inp.dataset.notif];});
+  updateNotifBtn();
+  updateNotifPermStatus();
+}
+function updateNotifBtn(){
+  const btn=document.getElementById('notifBtn');
+  const on=Notification.permission==='granted';
+  btn.classList.toggle('notif-on',on);
+  document.getElementById('notifBtnLabel').textContent=on?'알림 ON':'알림 설정';
+}
+function updateNotifPermStatus(){
+  const el=document.getElementById('notifPermStatus');
+  if(!el)return;
+  const p=Notification.permission;
+  if(p==='granted') el.innerHTML='✅ <strong>알림 권한 허용됨</strong> — Windows 알림이 활성화되었습니다';
+  else if(p==='denied') el.innerHTML='❌ <strong>알림 차단됨</strong> — 브라우저 설정에서 허용해주세요';
+  else el.innerHTML='⏳ <strong>알림 미설정</strong> — 아래 버튼을 클릭해 허용해주세요';
+}
+function toggleNotifPanel(){
+  const panel=document.getElementById('notifPanel');
+  panel.classList.toggle('show');
+  if(panel.classList.contains('show'))updateNotifPermStatus();
+}
+// Close panel when clicking outside
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('notifPanel');
+  const btn=document.getElementById('notifBtn');
+  if(panel&&!panel.contains(e.target)&&!btn.contains(e.target))panel.classList.remove('show');
+});
+
+function requestNotifPermission(){
+  if(!('Notification' in window)){showToast('❌','이 브라우저는 알림을 지원하지 않습니다');return;}
+  Notification.requestPermission().then(p=>{
+    updateNotifPermStatus();updateNotifBtn();
+    if(p==='granted'){
+      showToast('✅','시스템 알림이 활성화되었습니다!');
+      sendSystemNotif('GPA KOREA 업무 시계','알림이 활성화되었습니다! 업무 알림을 받을 수 있습니다.','info');
+    } else if(p==='denied'){
+      showToast('⚠️','알림이 차단되었습니다. 브라우저 설정에서 변경할 수 있습니다.');
+    }
+  });
+}
+
+function sendSystemNotif(title,body,type){
+  if(Notification.permission!=='granted')return;
+  const iconMap={info:'ℹ️',warning:'⚠️',critical:'🚨',reminder:'⏰',success:'✅'};
+  try{
+    const n=new Notification(title,{
+      body,
+      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⏰</text></svg>',
+      badge:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📋</text></svg>',
+      tag:'gpa-'+type+'-'+Date.now(),
+      requireInteraction: type==='critical',
+      silent: type==='info'
+    });
+    n.onclick=()=>{window.focus();n.close();};
+    // Auto-close non-critical after 10s
+    if(type!=='critical') setTimeout(()=>n.close(),10000);
+  }catch(e){console.log('Notification error:',e);}
+}
+
+function markNotifSent(key){
+  notifSentKeys[key]=true;
+  localStorage.setItem('gpa_notif_sent_'+getTodayKey(),JSON.stringify(notifSentKeys));
+}
+
+// Main notification check loop (runs every 60 seconds)
 function checkNotifications(){
   const now=new Date(),h=now.getHours(),m=now.getMinutes(),today=now.getDate();
-  if(h===9&&m===0){const mt=monthlyTasks.filter(x=>today>=x.day&&today<=(x.endDay||x.day));if(mt.length)showToast('📌 월간 업무 알림!',`오늘(${today}일): ${mt[0].tasks[0]}`);}
-  if(h===9&&m===5){const up=monthlyTasks.filter(x=>x.day===today+2);if(up.length)showToast('⏰ D-2 알림',`${up[0].day}일: ${up[0].tasks[0]}`);}
-  if(h===12&&m===0){const uc=dailyTasks.filter(t=>t.timeSlot==='morning'&&!checkedTasks[t.id]);if(uc.length)showToast('⚠️ 오전 업무 미완료',`${uc.length}개 미완료`);}
-  if(h===17&&m===30)showToast('🌙 퇴근 전 확인','업무분장표 작성과 아사나 확인!');
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const todayDay=dayMap[now.getDay()];
+
+  // 1) Morning kickoff (09:30)
+  if(h===9&&m===30&&notifSettings.morning&&!notifSentKeys['morning']){
+    const mt=monthlyTasks.filter(x=>today>=x.day&&today<=(x.endDay||x.day));
+    const wt=weeklyTasks[todayDay]||[];
+    let body=`일간 ${dailyTasks.length}건`;
+    if(wt.length) body+=` | 주간 ${wt.length}건`;
+    if(mt.length) body+=` | 월간 ${mt.length}건`;
+    body+='\n좋은 하루 시작하세요!';
+    sendSystemNotif('🌅 GPA KOREA — 출근 알림',body,'reminder');
+    showToast('🌅 출근 알림',body);
+    markNotifSent('morning');
+  }
+
+  // 2) Monthly task alert (09:05)
+  if(h===9&&m===5&&notifSettings.monthly&&!notifSentKeys['monthly_alert']){
+    const mt=monthlyTasks.filter(x=>today>=x.day&&today<=(x.endDay||x.day));
+    if(mt.length){
+      sendSystemNotif('📌 오늘의 월간 업무!',`${mt.length}건: ${mt.map(m=>m.tasks[0]).join(', ')}`,'warning');
+      showToast('📌 월간 업무 알림!',`오늘(${today}일): ${mt[0].tasks[0]}`);
+    }
+    // D-2 upcoming
+    const up=monthlyTasks.filter(x=>x.day===today+2);
+    if(up.length){
+      sendSystemNotif('⏰ D-2 알림',`${up[0].day}일: ${up[0].tasks[0]}`,'reminder');
+      showToast('⏰ D-2 알림',`${up[0].day}일: ${up[0].tasks[0]}`);
+    }
+    markNotifSent('monthly_alert');
+  }
+
+  // 3) Midday incomplete check (12:00)
+  if(h===12&&m===0&&notifSettings.incomplete&&!notifSentKeys['midday']){
+    const uc=dailyTasks.filter(t=>t.timeSlot==='morning'&&!checkedTasks[t.id]);
+    if(uc.length){
+      sendSystemNotif('⚠️ 오전 업무 미완료!',`${uc.length}개 남음: ${uc.map(t=>t.name).slice(0,3).join(', ')}`,'warning');
+      showToast('⚠️ 오전 업무 미완료',`${uc.length}개 미완료`);
+    }
+    markNotifSent('midday');
+  }
+
+  // 4) Afternoon weekly check (14:00)
+  if(h===14&&m===0&&notifSettings.weekly&&!notifSentKeys['afternoon_weekly']){
+    const wt=weeklyTasks[todayDay]||[];
+    const uc=wt.filter(t=>!checkedTasks[t.id]);
+    if(uc.length){
+      sendSystemNotif('📅 주간 업무 미완료!',`오늘 ${uc.length}건 남음: ${uc.map(t=>t.name).slice(0,3).join(', ')}`,'warning');
+      showToast('📅 주간 업무',`${uc.length}건 미완료`);
+    }
+    markNotifSent('afternoon_weekly');
+  }
+
+  // 5) Overdue critical alert (09:30, 15:00)
+  if(((h===9&&m===30)||(h===15&&m===0))&&notifSettings.overdue&&!notifSentKeys['overdue_'+h]){
+    const overdue=[];
+    monthlyTasks.forEach(mt=>{
+      const ed=mt.endDay||mt.day;
+      if(ed<today){
+        const mtKey=getDateKey(now.getFullYear(),now.getMonth(),mt.day);
+        const mtChecks=getChecksForDate(mtKey);
+        const allDone=mt.tasks.every((_,i)=>mtChecks[`m_${mt.day}_${i}`]);
+        if(!allDone) overdue.push(`${mt.day}일: ${mt.tasks[0]}`);
+      }
+    });
+    if(overdue.length){
+      sendSystemNotif('🚨 긴급! 기한초과 업무!',`${overdue.length}건 미완료!\n${overdue.slice(0,3).join('\n')}`,'critical');
+      showToast('🚨 기한초과!',`${overdue.length}건 월간 업무 미완료`);
+    }
+    markNotifSent('overdue_'+h);
+  }
+
+  // 6) Evening wrap-up (18:00)
+  if(h===18&&m===0&&notifSettings.evening&&!notifSentKeys['evening']){
+    const uncDaily=dailyTasks.filter(t=>!checkedTasks[t.id]).length;
+    const uncWeekly=(weeklyTasks[todayDay]||[]).filter(t=>!checkedTasks[t.id]).length;
+    let body=`남은 업무: 일간 ${uncDaily}건`;
+    if(uncWeekly) body+=`, 주간 ${uncWeekly}건`;
+    body+='\n업무분장표 작성과 아사나 확인!';
+    sendSystemNotif('🌙 퇴근 전 확인!',body,'reminder');
+    showToast('🌙 퇴근 전 확인','업무분장표 작성과 아사나 확인!');
+    markNotifSent('evening');
+  }
+
+  // 7) Monthly deadline today alert (10:00)
+  if(h===10&&m===0&&notifSettings.monthly&&!notifSentKeys['deadline_today']){
+    const deadlines=monthlyTasks.filter(mt=>{
+      const ed=mt.endDay||mt.day;
+      return today===ed;
+    });
+    if(deadlines.length){
+      sendSystemNotif('⏰ 오늘 마감 업무!',`${deadlines.length}건 마감: ${deadlines.map(m=>m.tasks[0]).join(', ')}`,'critical');
+    }
+    markNotifSent('deadline_today');
+  }
 }
 setInterval(checkNotifications,60000);
-setTimeout(()=>{const today=new Date().getDate();const mt=monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day));if(mt.length)showToast('📌 오늘의 월간 업무',mt[0].tasks[0]);},2000);
+
+// Initial notifications on page load
+setTimeout(()=>{
+  loadNotifSettings();
+  const today=new Date().getDate();
+  const mt=monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day));
+  if(mt.length)showToast('📌 오늘의 월간 업무',mt[0].tasks[0]);
+  // Auto-request notification permission if not set
+  if('Notification' in window && Notification.permission==='default'){
+    // Don't auto-request, just show hint
+    showToast('🔔 알림 설정','상단 🔔 버튼에서 Windows 시스템 알림을 설정하세요!');
+  }
+},2000);
 
 // ============ WARNING SYSTEM ============
 function checkWarnings(){
