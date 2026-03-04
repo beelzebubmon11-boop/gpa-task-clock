@@ -296,6 +296,10 @@ select.form-input{cursor:pointer}
 .report-act-btn.primary:hover{background:#7dd3fc}
 .report-act-btn.claude-btn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#0f172a;font-weight:700}
 .report-act-btn.claude-btn:hover{background:linear-gradient(135deg,#f59e0b,#fbbf24);transform:scale(1.03)}
+.asana-copy-wrap{margin-left:auto;display:flex;align-items:center}
+.asana-copy-btn{background:linear-gradient(135deg,#f06292,#e91e63);border:none;color:#fff;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.asana-copy-btn:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(233,30,99,.35)}
+.asana-copy-btn:active{transform:scale(.96)}
 .report-body{flex:1;overflow-y:auto;padding:24px}
 .report-section{margin-bottom:24px}
 .report-section h3{font-size:15px;color:#38bdf8;margin-bottom:12px;display:flex;align-items:center;gap:8px;padding-bottom:6px;border-bottom:1px solid #1e293b}
@@ -380,6 +384,9 @@ select.form-input{cursor:pointer}
       <button class="tab" onclick="switchTab('weekly',this)">📅 주간 업무</button>
       <button class="tab" onclick="switchTab('monthly',this)">🗓 월간 업무</button>
       <button class="tab" onclick="switchTab('memo',this)">📝 메모</button>
+      <div class="asana-copy-wrap" id="asanaCopyWrap">
+        <button class="asana-copy-btn" onclick="copyForAsana()" title="현재 탭의 업무를 아사나 등록용으로 복사">📋 Asana 복사</button>
+      </div>
     </div>
     <div id="warningContainer"></div>
     <div class="stats-row">
@@ -888,7 +895,99 @@ function updateStats(){
 
 // ============ TABS ============
 function switchTab(tab,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
-  document.getElementById('allView').style.display=tab==='all'?'':'none';document.getElementById('dailyView').style.display=tab==='daily'?'':'none';document.getElementById('weeklyView').style.display=tab==='weekly'?'':'none';document.getElementById('monthlyView').style.display=tab==='monthly'?'':'none';document.getElementById('memoView').style.display=tab==='memo'?'':'none';}
+  document.getElementById('allView').style.display=tab==='all'?'':'none';document.getElementById('dailyView').style.display=tab==='daily'?'':'none';document.getElementById('weeklyView').style.display=tab==='weekly'?'':'none';document.getElementById('monthlyView').style.display=tab==='monthly'?'':'none';document.getElementById('memoView').style.display=tab==='memo'?'':'none';
+  // Show/hide asana copy button (not for memo/all)
+  const aw=document.getElementById('asanaCopyWrap');
+  if(aw) aw.style.display=['daily','weekly','monthly'].includes(tab)?'flex':'none';
+  window._currentTab=tab;
+}
+
+// ============ ASANA COPY ============
+function copyForAsana(){
+  const tab=window._currentTab||'daily';
+  let lines=[];
+  const dayKo={mon:'월',tue:'화',wed:'수',thu:'목',fri:'금',sat:'토',sun:'일'};
+  const today=new Date(),todayStr=`${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+
+  if(tab==='daily'){
+    lines.push(`[일간 업무] ${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`);
+    lines.push('');
+    const groups={morning:{label:'오전',tasks:[]},afternoon:{label:'오후',tasks:[]},evening:{label:'퇴근전',tasks:[]}};
+    dailyTasks.forEach(t=>groups[t.timeSlot].tasks.push(t));
+    for(const[,g] of Object.entries(groups)){
+      if(!g.tasks.length) continue;
+      lines.push(`▸ ${g.label}`);
+      g.tasks.forEach(t=>{
+        const ck=checkedTasks[t.id]?'✅':'⬜';
+        lines.push(`  ${ck} ${t.name} (${t.time})`);
+      });
+      lines.push('');
+    }
+    // Today's weekly tasks
+    const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+    const dk=dayMap[today.getDay()];
+    const wt=weeklyTasks[dk]||[];
+    if(wt.length){
+      lines.push(`▸ 오늘의 주간 업무`);
+      wt.forEach(t=>{
+        const ck=checkedTasks[t.id]?'✅':'⬜';
+        lines.push(`  ${ck} ${t.name}`);
+      });
+      lines.push('');
+    }
+    // Today's monthly tasks
+    const d=today.getDate();
+    const mt=monthlyTasks.filter(m=>d>=m.day&&d<=(m.endDay||m.day));
+    if(mt.length){
+      lines.push(`▸ 오늘의 월간 업무`);
+      mt.forEach(m=>m.tasks.forEach((tn,i)=>{
+        const ck=checkedTasks[`m_${m.day}_${i}`]?'✅':'⬜';
+        lines.push(`  ${ck} ${tn}`);
+      }));
+      lines.push('');
+    }
+
+  } else if(tab==='weekly'){
+    const weekDates=getWeekDates();
+    const firstDay=weekDates.mon;
+    lines.push(`[주간 업무] ${firstDay.getFullYear()}년 ${firstDay.getMonth()+1}월 ${firstDay.getDate()}일 주차`);
+    lines.push('');
+    for(const[key,wd] of Object.entries(weekDates)){
+      const tasks=weeklyTasks[key]||[];
+      if(!tasks.length) continue;
+      const wdKey=getDateKey(wd.getFullYear(),wd.getMonth(),wd.getDate());
+      const dayChecks=getChecksForDate(wdKey);
+      lines.push(`▸ ${dayKo[key]}요일 (${wd.getMonth()+1}/${wd.getDate()})`);
+      tasks.forEach(t=>{
+        const ck=dayChecks[t.id]?'✅':'⬜';
+        lines.push(`  ${ck} ${t.name}`);
+      });
+      lines.push('');
+    }
+
+  } else if(tab==='monthly'){
+    lines.push(`[월간 업무] ${currentYear}년 ${currentMonth+1}월`);
+    lines.push('');
+    monthlyTasks.forEach(mt=>{
+      const cat=categoryLabels[mt.category];
+      const mtDateKey=getDateKey(currentYear,currentMonth,mt.day);
+      const mtChecks=getChecksForDate(mtDateKey);
+      const dateStr=mt.endDay&&mt.endDay>mt.day?`${mt.day}일~${mt.endDay}일`:`${mt.day}일`;
+      lines.push(`▸ ${dateStr} [${cat.label}]`);
+      mt.tasks.forEach((tn,i)=>{
+        const ck=mtChecks[`m_${mt.day}_${i}`]?'✅':'⬜';
+        lines.push(`  ${ck} ${tn}`);
+      });
+      lines.push('');
+    });
+  }
+
+  const text=lines.join('\n').trim();
+  navigator.clipboard.writeText(text).then(()=>{
+    const labels={daily:'일간',weekly:'주간',monthly:'월간'};
+    showToast('📋 Asana 복사 완료',`${labels[tab]} 업무가 클립보드에 복사되었습니다`);
+  });
+}
 
 // ============ MODAL (Add / Edit) ============
 let editingType=null, editingId=null;
@@ -1889,17 +1988,37 @@ function exportForClaude(){
   }
 
   // Build prompt text
-  let prompt=`아래는 GPA KOREA ${data.type} 업무 리포트 데이터입니다.\n`;
-  prompt+=`기간: ${data.period}\n\n`;
-  prompt+=`이 데이터를 기반으로 전문적인 ${data.type} 업무 리포트를 .docx 워드 파일로 작성해주세요.\n`;
-  prompt+=`리포트에 포함할 내용:\n`;
-  prompt+=`- 기간 및 요약 (전체 달성률, 카테고리별 달성률)\n`;
-  prompt+=`- 주요 성과 및 완료 업무\n`;
-  prompt+=`- 미완료/지연 업무 및 사유 분석\n`;
-  prompt+=`- 개선점 및 다음 기간 계획 제안\n\n`;
-  prompt+=`=== 데이터 시작 ===\n`;
+  let prompt=`# 개인 포트폴리오용 업무 성과 리포트 작성 요청\n\n`;
+  prompt+=`## 배경\n`;
+  prompt+=`- 회사: GPA KOREA\n`;
+  prompt+=`- 리포트 유형: ${data.type} 업무 성과 리포트\n`;
+  prompt+=`- 기간: ${data.period}\n`;
+  prompt+=`- 목적: **개인 포트폴리오 / 커리어 성과 기록**용\n\n`;
+  prompt+=`## 요청사항\n`;
+  prompt+=`아래 업무 데이터를 기반으로 전문적인 업무 성과 리포트를 **.docx 워드 파일**로 작성해주세요.\n\n`;
+  prompt+=`### 리포트 구성\n`;
+  prompt+=`1. **표지** - 제목, 기간, 작성자, 소속\n`;
+  prompt+=`2. **Executive Summary** - 핵심 성과 지표 요약 (달성률, 완료 건수 등)\n`;
+  prompt+=`3. **업무 성과 분석**\n`;
+  prompt+=`   - 카테고리별 성과 (일간/주간/월간 업무 달성률)\n`;
+  prompt+=`   - 시간대별 업무 분포 및 효율성 (오전/오후/퇴근전)\n`;
+  prompt+=`   - 주요 완료 업무 하이라이트\n`;
+  prompt+=`4. **업무 관리 역량 어필**\n`;
+  prompt+=`   - 체계적 업무 관리 능력 (자체 대시보드 구축·운영)\n`;
+  prompt+=`   - 데이터 기반 자기관리 역량\n`;
+  prompt+=`   - 일정 준수율 및 업무 처리 패턴 분석\n`;
+  prompt+=`5. **미완료 업무 분석 및 개선 계획**\n`;
+  prompt+=`   - 미완료 사유 분석\n`;
+  prompt+=`   - 자기 개선 방안\n`;
+  prompt+=`6. **다음 기간 목표 및 액션 플랜**\n\n`;
+  prompt+=`### 작성 톤 & 스타일\n`;
+  prompt+=`- 포트폴리오에 넣을 수 있는 깔끔하고 전문적인 문서\n`;
+  prompt+=`- 성과를 객관적 수치와 함께 어필하는 톤\n`;
+  prompt+=`- 표, 차트 설명, 볼드 강조 적극 활용\n`;
+  prompt+=`- 한국어로 작성하되, 섹션 제목은 영문 병기 가능\n\n`;
+  prompt+=`=== 업무 데이터 시작 ===\n`;
   prompt+=JSON.stringify(data,null,2);
-  prompt+=`\n=== 데이터 끝 ===`;
+  prompt+=`\n=== 업무 데이터 끝 ===`;
 
   navigator.clipboard.writeText(prompt).then(()=>{
     showToast('🤖 Claude 데이터 복사 완료','Claude에게 붙여넣기하면 전문 리포트를 작성해줍니다!');
