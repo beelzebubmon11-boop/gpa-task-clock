@@ -189,6 +189,33 @@ svg text{font-family:'Segoe UI',sans-serif}
 .ov-timeline-time{font-size:11px;color:#64748b;margin-bottom:4px}
 .ov-timeline-content{font-size:13px;color:#e2e8f0}
 
+/* Warning Alerts */
+.warning-banner{background:linear-gradient(135deg,#ef444422,#dc262622);border:2px solid #ef4444;border-radius:14px;padding:18px 20px;margin-bottom:20px;animation:warningPulse 2s infinite}
+@keyframes warningPulse{0%,100%{border-color:#ef4444;box-shadow:0 0 0 0 rgba(239,68,68,.3)}50%{border-color:#f87171;box-shadow:0 0 20px 4px rgba(239,68,68,.15)}}
+.warning-banner.level-critical{border-color:#ef4444;background:linear-gradient(135deg,#ef444433,#dc262633)}
+.warning-banner.level-caution{border-color:#f59e0b;background:linear-gradient(135deg,#f59e0b22,#d9770622);animation-name:cautionPulse}
+@keyframes cautionPulse{0%,100%{border-color:#f59e0b;box-shadow:0 0 0 0 rgba(245,158,11,.3)}50%{border-color:#fbbf24;box-shadow:0 0 20px 4px rgba(245,158,11,.15)}}
+.warning-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.warning-icon{font-size:28px;animation:warningShake 1s ease-in-out infinite}
+@keyframes warningShake{0%,100%{transform:rotate(0deg)}15%{transform:rotate(-12deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-8deg)}60%{transform:rotate(8deg)}75%{transform:rotate(-4deg)}}
+.warning-title{font-size:16px;font-weight:700;color:#f87171}
+.warning-banner.level-caution .warning-title{color:#fbbf24}
+.warning-close{margin-left:auto;background:none;border:1px solid #ef444466;color:#f87171;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.warning-close:hover{background:#ef4444;color:#fff}
+.warning-list{display:flex;flex-direction:column;gap:6px}
+.warning-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0f172acc;border-radius:10px;font-size:13px;border-left:3px solid #ef4444}
+.warning-banner.level-caution .warning-item{border-left-color:#f59e0b}
+.warning-item .wi-icon{font-size:16px;flex-shrink:0}
+.warning-item .wi-text{flex:1;color:#e2e8f0}
+.warning-item .wi-text strong{color:#f87171}
+.warning-banner.level-caution .warning-item .wi-text strong{color:#fbbf24}
+.warning-item .wi-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;flex-shrink:0}
+.wi-badge-overdue{background:#ef4444;color:#fff}
+.wi-badge-today{background:#f59e0b;color:#0f172a}
+.wi-badge-behind{background:#8b5cf6;color:#fff}
+.warning-summary{margin-top:10px;padding:10px 14px;background:#0f172acc;border-radius:10px;display:flex;align-items:center;gap:8px;font-size:12px;color:#94a3b8}
+.warning-summary strong{color:#f87171;font-size:14px}
+
 /* FAB & Modal */
 .fab{position:fixed;bottom:32px;right:32px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;color:#0f172a;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(56,189,248,.4);z-index:90;transition:all .2s;display:flex;align-items:center;justify-content:center}
 .fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(56,189,248,.6)}
@@ -267,6 +294,7 @@ select.form-input{cursor:pointer}
       <button class="tab" onclick="switchTab('monthly',this)">🗓 월간 업무</button>
       <button class="tab" onclick="switchTab('memo',this)">📝 메모</button>
     </div>
+    <div id="warningContainer"></div>
     <div class="stats-row">
       <div class="stat-card highlight"><div class="label">오늘 할 일</div><div class="value" id="statToday">-</div><div class="progress-bar"><div class="progress-fill fill-blue" id="progressToday" style="width:0%"></div></div></div>
       <div class="stat-card"><div class="label">완료</div><div class="value" id="statDone">0</div><div class="sub" id="statDonePercent">0%</div></div>
@@ -834,6 +862,118 @@ function checkNotifications(){
 setInterval(checkNotifications,60000);
 setTimeout(()=>{const today=new Date().getDate();const mt=monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day));if(mt.length)showToast('📌 오늘의 월간 업무',mt[0].tasks[0]);},2000);
 
+// ============ WARNING SYSTEM ============
+function checkWarnings(){
+  const container=document.getElementById('warningContainer');
+  if(!container)return;
+  const now=new Date(), today=now.getDate(), todayDow=now.getDay();
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const dayNames=['일','월','화','수','목','금','토'];
+  let warnings=[];
+
+  // 1) Monthly tasks: overdue (past day, not completed)
+  monthlyTasks.forEach(mt=>{
+    const endDay=mt.endDay||mt.day;
+    if(endDay<today){
+      const allDone=mt.tasks.every((_,i)=>checkedTasks[`m_${mt.day}_${i}`]);
+      if(!allDone){
+        const undone=mt.tasks.filter((_,i)=>!checkedTasks[`m_${mt.day}_${i}`]);
+        warnings.push({
+          level:'critical', type:'monthly', icon:'🗓',
+          text:`<strong>${mt.day}일</strong> 월간 업무 미완료 — ${undone.join(', ')}`,
+          badge:'기한초과', badgeClass:'wi-badge-overdue',
+          daysLate: today - endDay
+        });
+      }
+    }
+  });
+
+  // 2) Monthly tasks: due today but not done
+  monthlyTasks.filter(mt=>today>=mt.day&&today<=(mt.endDay||mt.day)).forEach(mt=>{
+    const allDone=mt.tasks.every((_,i)=>checkedTasks[`m_${mt.day}_${i}`]);
+    if(!allDone){
+      const undone=mt.tasks.filter((_,i)=>!checkedTasks[`m_${mt.day}_${i}`]);
+      const isLastDay=today===(mt.endDay||mt.day);
+      if(isLastDay){
+        warnings.push({
+          level:'critical', type:'monthly', icon:'⏰',
+          text:`<strong>오늘 마감!</strong> 월간 업무 — ${undone.join(', ')}`,
+          badge:'오늘마감', badgeClass:'wi-badge-today'
+        });
+      }
+    }
+  });
+
+  // 3) Weekly tasks: check previous weekdays (Mon-Fri) this week for uncompleted
+  const weekStart=new Date(now);
+  weekStart.setDate(today - todayDow + (todayDow===0?-6:1)); // Monday of this week
+  for(let d=0;d<todayDow-(todayDow===0?0:1);d++){
+    const checkDate=new Date(weekStart);
+    checkDate.setDate(weekStart.getDate()+d);
+    const checkDow=checkDate.getDay();
+    if(checkDow===0||checkDow===6)continue; // skip weekends
+    const dk=dayMap[checkDow];
+    const wTasks=weeklyTasks[dk]||[];
+    const unchecked=wTasks.filter(t=>!checkedTasks[t.id]);
+    if(unchecked.length>0){
+      warnings.push({
+        level:'caution', type:'weekly', icon:'📅',
+        text:`<strong>${dayNames[checkDow]}요일</strong> 주간 업무 미완료 — ${unchecked.map(t=>t.name).join(', ')}`,
+        badge:'미완료', badgeClass:'wi-badge-behind'
+      });
+    }
+  }
+
+  // 4) Today's weekly tasks not done (afternoon reminder)
+  if(now.getHours()>=14){
+    const todayKey=dayMap[todayDow];
+    const todayWeekly=weeklyTasks[todayKey]||[];
+    const uncheckedToday=todayWeekly.filter(t=>!checkedTasks[t.id]);
+    if(uncheckedToday.length>0){
+      warnings.push({
+        level:'caution', type:'weekly', icon:'⚡',
+        text:`<strong>오늘(${dayNames[todayDow]})</strong> 주간 업무 아직 미완료 — ${uncheckedToday.map(t=>t.name).join(', ')}`,
+        badge:'진행중', badgeClass:'wi-badge-today'
+      });
+    }
+  }
+
+  if(!warnings.length){container.innerHTML='';return;}
+
+  // Sort: critical first
+  warnings.sort((a,b)=>{
+    if(a.level==='critical'&&b.level!=='critical')return -1;
+    if(a.level!=='critical'&&b.level==='critical')return 1;
+    return (b.daysLate||0)-(a.daysLate||0);
+  });
+
+  const hasCritical=warnings.some(w=>w.level==='critical');
+  const level=hasCritical?'critical':'caution';
+  const totalCount=warnings.length;
+  const critCount=warnings.filter(w=>w.level==='critical').length;
+
+  let h=`<div class="warning-banner level-${level}">`;
+  h+=`<div class="warning-header">`;
+  h+=`<span class="warning-icon">${hasCritical?'🚨':'⚠️'}</span>`;
+  h+=`<span class="warning-title">${hasCritical?'긴급! 미완료 업무가 있습니다':'주의! 완료하지 않은 업무가 있습니다'}</span>`;
+  h+=`<button class="warning-close" onclick="this.closest('.warning-banner').style.display='none'" title="닫기">✕</button>`;
+  h+=`</div>`;
+  h+=`<div class="warning-list">`;
+  warnings.forEach(w=>{
+    h+=`<div class="warning-item">`;
+    h+=`<span class="wi-icon">${w.icon}</span>`;
+    h+=`<span class="wi-text">${w.text}</span>`;
+    h+=`<span class="wi-badge ${w.badgeClass}">${w.badge}</span>`;
+    h+=`</div>`;
+  });
+  h+=`</div>`;
+  if(hasCritical){
+    h+=`<div class="warning-summary">💀 <strong>${critCount}건</strong>의 기한초과 업무가 있습니다. 즉시 처리해주세요!</div>`;
+  }
+  h+=`</div>`;
+  container.innerHTML=h;
+}
+
 // ============ MEMO VIEW ============
 function toggleMemoDone(id){const m=memos.find(x=>x.id===id);if(m){m.done=!m.done;m.updatedAt=new Date().toISOString();saveData('memos',memos);renderAll();}}
 function toggleMemoPin(id){const m=memos.find(x=>x.id===id);if(m){m.pinned=!m.pinned;saveData('memos',memos);renderAll();}}
@@ -1029,7 +1169,7 @@ function renderOverview(){
 }
 
 // ============ RENDER ALL ============
-function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();}
+function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();checkWarnings();}
 renderAll();
 // Auto-select today on load
 selectDay(new Date().getDate());
