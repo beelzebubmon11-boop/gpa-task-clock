@@ -97,14 +97,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .task-action-btn{width:24px;height:24px;border:none;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
 .btn-edit{background:#334155;color:#94a3b8}.btn-edit:hover{background:#475569;color:#e2e8f0}
 .btn-delete{background:#334155;color:#94a3b8}.btn-delete:hover{background:#ef4444;color:#fff}
-.weekly-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
-.day-column{background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden;min-width:0}
+.weekly-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.day-column{background:#1e293b;border:1px solid #334155;border-radius:12px;overflow:hidden}
 .day-column.today-col{border-color:#38bdf8}
-.day-col-header{padding:12px 8px;text-align:center;font-weight:600;font-size:13px;border-bottom:1px solid #334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-col-header{padding:12px;text-align:center;font-weight:600;font-size:14px;border-bottom:1px solid #334155}
 .day-column.today-col .day-col-header{background:#38bdf8;color:#0f172a}
 .day-col-tasks{padding:8px}
-.day-col-task{padding:8px 10px;background:#0f172a;border-radius:6px;font-size:12px;margin-bottom:6px;cursor:pointer;display:flex;align-items:flex-start;gap:6px;transition:all .15s;min-width:0}
-.day-col-task>span{word-break:keep-all;overflow-wrap:break-word;min-width:0;line-height:1.4}
+.day-col-task{padding:8px 10px;background:#0f172a;border-radius:6px;font-size:12px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s}
 .day-col-task:hover{background:#1a2744}
 .mini-check{width:16px;height:16px;border:2px solid #475569;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .mini-check.checked{background:#38bdf8;border-color:#38bdf8}.mini-check.checked::after{content:'✓';color:#0f172a;font-size:10px;font-weight:700}
@@ -342,25 +341,7 @@ select.form-input{cursor:pointer}
 .report-btn{background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;color:#0f172a;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;transition:all .15s}
 .report-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(56,189,248,.3)}
 
-@media(max-width:1400px){.weekly-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.day-col-header{font-size:12px;padding:10px 6px}.day-col-task{font-size:11px;padding:6px 8px}}
-@media(max-width:1200px){.main{flex-direction:column}.sidebar{width:100%;min-width:auto;border-right:none;border-bottom:1px solid #334155}.stats-row{grid-template-columns:repeat(2,1fr)}.weekly-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.monthly-grid{grid-template-columns:1fr}.clock-section{flex-direction:column}.clock-visual{width:100%;min-width:auto}}
-@media(max-width:900px){.weekly-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats-row{grid-template-columns:repeat(2,1fr)}.header{padding:12px 16px}.header h1{font-size:18px}.clock-display{font-size:22px}}
-@media(max-width:600px){.weekly-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}.tabs{flex-wrap:wrap}.tab{padding:8px 14px;font-size:12px}.content{padding:16px}.backup-btn-group{display:none}}
-
-/* Backup / Restore */
-.backup-btn-group{display:flex;gap:6px}
-.backup-btn{background:#334155;border:1px solid #475569;color:#94a3b8;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;transition:all .15s;white-space:nowrap}
-.backup-btn:hover{background:#475569;color:#e2e8f0}
-.backup-btn.restore-btn:hover{background:#38bdf822;border-color:#38bdf8;color:#38bdf8}
-.backup-btn.export-btn:hover{background:#22c55e22;border-color:#22c55e;color:#4ade80}
-.backup-reminder{display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#0f3460,#0f172a);border:1.5px solid #38bdf855;border-radius:12px;padding:12px 18px;margin-bottom:16px;animation:reminderPulse 3s infinite}
-@keyframes reminderPulse{0%,100%{border-color:#38bdf855}50%{border-color:#38bdf8bb;box-shadow:0 0 16px 2px rgba(56,189,248,.12)}}
-.backup-reminder-icon{font-size:22px;flex-shrink:0}
-.backup-reminder-text{flex:1;font-size:13px;color:#93c5fd}
-.backup-reminder-text strong{color:#38bdf8;display:block;margin-bottom:2px;font-size:13px}
-.backup-reminder-actions{display:flex;gap:6px;flex-shrink:0}
-.backup-reminder-close{background:none;border:none;color:#475569;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:all .15s}
-.backup-reminder-close:hover{color:#94a3b8;background:#334155}
+@media(max-width:1200px){.main{flex-direction:column}.sidebar{width:100%;min-width:auto;border-right:none;border-bottom:1px solid #334155}.stats-row{grid-template-columns:repeat(2,1fr)}.weekly-grid{grid-template-columns:repeat(3,1fr)}.monthly-grid{grid-template-columns:1fr}.clock-section{flex-direction:column}.clock-visual{width:100%;min-width:auto}}
 </style>
 </head>
 <body>
@@ -400,10 +381,6 @@ select.form-input{cursor:pointer}
       </div>
     </div>
     <button class="report-btn" onclick="openReport()">📊 업무 리포트</button>
-    <div class="backup-btn-group">
-      <button class="backup-btn export-btn" onclick="exportBackup()" title="현재 데이터를 JSON 파일로 백업">💾 백업</button>
-      <button class="backup-btn restore-btn" onclick="importBackup()" title="백업 파일에서 데이터 복원">📂 복원</button>
-    </div>
     <div style="text-align:right">
       <div class="clock-display" id="liveClock">--:--:--</div>
       <div class="date-display" id="liveDate">---</div>
@@ -440,17 +417,6 @@ select.form-input{cursor:pointer}
       <button class="tab" onclick="switchTab('monthly',this)">🗓 월간 업무</button>
       <button class="tab" onclick="switchTab('memo',this)">📝 메모</button>
     </div>
-    <div id="backupReminder" class="backup-reminder">
-      <span class="backup-reminder-icon">💾</span>
-      <div class="backup-reminder-text">
-        <strong>백업을 권장합니다</strong>
-        <span id="backupReminderMsg">오랫동안 백업하지 않았습니다. 브라우저 캐시 삭제 시 데이터가 손실될 수 있습니다.</span>
-      </div>
-      <div class="backup-reminder-actions">
-        <button class="backup-btn export-btn" onclick="exportBackup()" style="font-size:11px;padding:5px 10px">💾 지금 백업</button>
-        <button class="backup-reminder-close" onclick="document.getElementById('backupReminder').style.display='none'" title="닫기">✕</button>
-      </div>
-    </div>
     <div id="warningContainer"></div>
     <div class="stats-row">
       <div class="stat-card highlight"><div class="label">오늘 할 일</div><div class="value" id="statToday">-</div><div class="progress-bar"><div class="progress-fill fill-blue" id="progressToday" style="width:0%"></div></div></div>
@@ -472,9 +438,6 @@ select.form-input{cursor:pointer}
 
 <!-- FAB -->
 <button class="fab" onclick="openAddModal()" title="새 업무 추가">+</button>
-
-<!-- Hidden backup file input -->
-<input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="handleBackupFile(event)">
 
 <!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modalOverlay">
@@ -570,7 +533,7 @@ select.form-input{cursor:pointer}
         <button class="report-act-btn" onclick="copyReport()" title="클립보드 복사">📋 복사</button>
         <button class="report-act-btn" onclick="downloadReport()" title="텍스트 파일 다운로드">💾 다운로드</button>
         <button class="report-act-btn primary" onclick="copyReportFormatted()" title="서식 포함 복사">📄 서식복사</button>
-        <button class="report-act-btn claude-btn" onclick="exportForClaude()" title="Claude에게 전달할 데이터 복사">🤖 Claude 리포트</button>
+        <button class="report-act-btn claude-btn" onclick="exportForClaude()" title="포트폴리오용 Claude 프롬프트 복사">🤖 포트폴리오 리포트</button>
       </div>
       <button class="report-close" onclick="closeReport()">✕</button>
     </div>
@@ -1826,6 +1789,18 @@ function generateWeeklyReport(){
       });
     });
 
+    // Memos (일회성 업무) matching this day by start~due range
+    const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    memos.filter(m=>{
+      const s=m.startDate||'', du=m.due||'';
+      if(s&&du) return dateStr>=s&&dateStr<=du;
+      if(du) return dateStr===du;
+      return false;
+    }).forEach(m=>{
+      dayTotal++;const done=!!m.done;if(done)dayDone++;
+      tasks.push({name:m.title,type:'메모(일회성)',done,tags:m.tags||[],color:m.color});
+    });
+
     totalTasks+=dayTotal;totalDone+=dayDone;
     dayData.push({date:d,dk,dateKey,total:dayTotal,done:dayDone,tasks});
   });
@@ -1862,6 +1837,19 @@ function generateWeeklyReport(){
     missed.slice(0,30).forEach(m=>{h+=`<tr><td>${m.date}</td><td>${m.day}</td><td class="rt-miss">${escHtml(m.name)}</td><td>${m.type}</td></tr>`;});
     h+=`</tbody></table></div>`;
   }
+  // Memos section in report
+  const weekMemoDone=dayData.reduce((a,dd)=>a+dd.tasks.filter(t=>t.type==='메모(일회성)'&&t.done).length,0);
+  const weekMemoTotal=dayData.reduce((a,dd)=>a+dd.tasks.filter(t=>t.type==='메모(일회성)').length,0);
+  if(weekMemoTotal>0){
+    h+=`<div class="report-section"><h3>📝 일회성 업무 (메모) — ${weekMemoDone}/${weekMemoTotal} 완료</h3><table class="report-table"><thead><tr><th>날짜</th><th>업무</th><th>상태</th></tr></thead><tbody>`;
+    dayData.forEach(dd=>{
+      dd.tasks.filter(t=>t.type==='메모(일회성)').forEach(t=>{
+        h+=`<tr><td>${dd.date.getMonth()+1}/${dd.date.getDate()}</td><td>${escHtml(t.name)}</td><td class="${t.done?'rt-done':'rt-miss'}">${t.done?'✅ 완료':'❌ 미완료'}</td></tr>`;
+      });
+    });
+    h+=`</tbody></table></div>`;
+  }
+
   document.getElementById('reportContent').innerHTML=h;
 
   // Text report
@@ -1887,6 +1875,17 @@ function generateWeeklyReport(){
   if(missed.length){
     txt+=`\n■ 미완료 업무 (${missed.length}건)\n`;
     missed.forEach(m=>txt+=`    ❌ ${m.date} (${m.day}) ${m.name} [${m.type}]\n`);
+  }
+  // Memo tasks in text
+  const txtMemos=[];
+  dayData.forEach(dd=>{
+    dd.tasks.filter(t=>t.type==='메모(일회성)').forEach(t=>{
+      txtMemos.push({date:`${dd.date.getMonth()+1}/${dd.date.getDate()}`,name:t.name,done:t.done});
+    });
+  });
+  if(txtMemos.length){
+    txt+=`\n■ 일회성 업무 (메모) ${txtMemos.filter(m=>m.done).length}/${txtMemos.length}건 완료\n`;
+    txtMemos.forEach(m=>txt+=`    ${m.done?'✅':'❌'} ${m.date} ${m.name}\n`);
   }
   txt+=`\n========================================\n`;
   txt+=`  생성일시: ${new Date().toLocaleString('ko-KR')}\n`;
@@ -1991,6 +1990,26 @@ function generateMonthlyReport(){
     });
   });
   h+=`</tbody></table></div>`;
+
+  // Memo section in monthly report
+  const monthStr=`${mr.year}-${String(mr.month+1).padStart(2,'0')}`;
+  const monthMemos=memos.filter(m=>{
+    const s=m.startDate||'', d=m.due||'';
+    if(s&&s.startsWith(monthStr)) return true;
+    if(d&&d.startsWith(monthStr)) return true;
+    return false;
+  });
+  if(monthMemos.length){
+    const memoDone=monthMemos.filter(m=>m.done).length;
+    h+=`<div class="report-section"><h3>📝 일회성 업무 (메모) — ${memoDone}/${monthMemos.length} 완료</h3><table class="report-table"><thead><tr><th>업무</th><th>기간</th><th>중요도</th><th>상태</th></tr></thead><tbody>`;
+    const pLabels={yellow:'일반',blue:'참고',green:'낮음',red:'긴급',purple:'중요'};
+    monthMemos.forEach(m=>{
+      const period=(m.startDate||'?')+' ~ '+(m.due||'?');
+      h+=`<tr><td>${escHtml(m.title)}</td><td>${period}</td><td>${pLabels[m.color]||'일반'}</td><td class="${m.done?'rt-done':'rt-miss'}">${m.done?'✅ 완료':'❌ 미완료'}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  }
+
   document.getElementById('reportContent').innerHTML=h;
 
   // Text report
@@ -2015,6 +2034,14 @@ function generateMonthlyReport(){
       txt+=`  ${done?'✅':'❌'} ${mt.day}일 ${tn} [${categoryLabels[mt.category].label}]\n`;
     });
   });
+  // Memo tasks in text
+  if(monthMemos.length){
+    txt+=`\n■ 일회성 업무 (메모) ${monthMemos.filter(m=>m.done).length}/${monthMemos.length}건 완료\n`;
+    const pLabels2={yellow:'일반',blue:'참고',green:'낮음',red:'긴급',purple:'중요'};
+    monthMemos.forEach(m=>{
+      txt+=`    ${m.done?'✅':'❌'} ${m.title} [${pLabels2[m.color]||'일반'}] ${m.startDate||'?'}~${m.due||'?'}\n`;
+    });
+  }
   txt+=`\n========================================\n`;
   txt+=`  생성일시: ${new Date().toLocaleString('ko-KR')}\n`;
   txt+=`========================================`;
@@ -2048,11 +2075,22 @@ function exportForClaude(){
   const priorityLabels={yellow:'일반',blue:'참고',green:'낮음',red:'긴급',purple:'중요'};
   let data={};
 
+  // Collect leave/holiday info for the period
+  const collectLeaveInfo=(startDate,endDate)=>{
+    const leaves=[];
+    for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
+      const lh=isLeaveOrHoliday(d.getFullYear(),d.getMonth(),d.getDate());
+      if(lh) leaves.push({date:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,type:lh.type,label:lh.label});
+    }
+    return leaves;
+  };
+
   if(reportMode==='weekly'){
     const week=getWeekRange(reportOffset);
     data.type='주간';
     data.period=week.label;
     data.company='GPA KOREA';
+    data.department='경영지원 (회계)';
     data.days=[];
     for(let i=0;i<7;i++){
       const d=new Date(week.start);d.setDate(week.start.getDate()+i);
@@ -2060,25 +2098,38 @@ function exportForClaude(){
       const dateKey=getDateKey(d.getFullYear(),d.getMonth(),d.getDate());
       const checks=getChecksForDate(dateKey);
       const exMC=getMonthlyChecks(d.getFullYear(),d.getMonth());
-      const dayInfo={date:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,dayName:dayKo[d.getDay()],tasks:[]};
+      const lh=isLeaveOrHoliday(d.getFullYear(),d.getMonth(),d.getDate());
+      const dayInfo={date:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`,dayName:dayKo[d.getDay()],leave:lh?lh.label:null,tasks:[]};
       dailyTasks.forEach(t=>{
-        dayInfo.tasks.push({name:t.name,type:'일간',period:t.period==='morning'?'오전':t.period==='afternoon'?'오후':'퇴근전',done:!!checks[t.id]});
+        dayInfo.tasks.push({name:t.name,type:'일간(루틴)',timeSlot:t.timeSlot==='morning'?'오전':t.timeSlot==='afternoon'?'오후':'퇴근전',priority:t.priority||'medium',done:!!checks[t.id]});
       });
       (weeklyTasks[dk]||[]).forEach(t=>{
-        dayInfo.tasks.push({name:t.name,type:'주간',done:!!checks[t.id]});
+        dayInfo.tasks.push({name:t.name,type:'주간(정기)',done:!!checks[t.id]});
       });
       monthlyTasks.filter(mt=>d.getDate()>=mt.day&&d.getDate()<=(mt.endDay||mt.day)).forEach(mt=>{
         mt.tasks.forEach((tn,idx)=>{
-          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!exMC[`m_${mt.day}_${idx}`]});
+          dayInfo.tasks.push({name:tn,type:'월간(마감)',category:categoryLabels[mt.category].label,done:!!exMC[`m_${mt.day}_${idx}`]});
         });
+      });
+      // Memos (일회성/프로젝트성 업무) matching this day
+      const dateStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      memos.filter(m=>{
+        const s=m.startDate||'', du=m.due||'';
+        if(s&&du) return dateStr>=s&&dateStr<=du;
+        if(du) return dateStr===du;
+        return false;
+      }).forEach(m=>{
+        dayInfo.tasks.push({name:m.title,type:'일회성(프로젝트)',priority:priorityLabels[m.color]||'일반',done:!!m.done,tags:m.tags||[],body:m.body||'',startDate:m.startDate,dueDate:m.due});
       });
       data.days.push(dayInfo);
     }
+    data.leaveInfo=collectLeaveInfo(week.start,new Date(week.start.getTime()+6*86400000));
   } else {
     const mr=getMonthRange(reportOffset);
     data.type='월간';
     data.period=mr.label;
     data.company='GPA KOREA';
+    data.department='경영지원 (회계)';
     data.days=[];
     const exMC2=getMonthlyChecks(mr.year,mr.month);
     for(let d=1;d<=mr.days;d++){
@@ -2086,64 +2137,142 @@ function exportForClaude(){
       const dk=dayMap[dt.getDay()];
       const dateKey=getDateKey(mr.year,mr.month,d);
       const checks=getChecksForDate(dateKey);
-      const dayInfo={date:`${mr.year}-${mr.month+1}-${d}`,dayName:dayKo[dt.getDay()],tasks:[]};
+      const lh=isLeaveOrHoliday(mr.year,mr.month,d);
+      const dayInfo={date:`${mr.year}-${mr.month+1}-${d}`,dayName:dayKo[dt.getDay()],leave:lh?lh.label:null,tasks:[]};
       dailyTasks.forEach(t=>{
-        dayInfo.tasks.push({name:t.name,type:'일간',period:t.period==='morning'?'오전':t.period==='afternoon'?'오후':'퇴근전',done:!!checks[t.id]});
+        dayInfo.tasks.push({name:t.name,type:'일간(루틴)',timeSlot:t.timeSlot==='morning'?'오전':t.timeSlot==='afternoon'?'오후':'퇴근전',priority:t.priority||'medium',done:!!checks[t.id]});
       });
       (weeklyTasks[dk]||[]).forEach(t=>{
-        dayInfo.tasks.push({name:t.name,type:'주간',done:!!checks[t.id]});
+        dayInfo.tasks.push({name:t.name,type:'주간(정기)',done:!!checks[t.id]});
       });
       monthlyTasks.filter(mt=>d>=mt.day&&d<=(mt.endDay||mt.day)).forEach(mt=>{
         mt.tasks.forEach((tn,idx)=>{
-          dayInfo.tasks.push({name:tn,type:'월간',category:categoryLabels[mt.category].label,done:!!exMC2[`m_${mt.day}_${idx}`]});
+          dayInfo.tasks.push({name:tn,type:'월간(마감)',category:categoryLabels[mt.category].label,done:!!exMC2[`m_${mt.day}_${idx}`]});
         });
       });
-      if(dayInfo.tasks.length>0) data.days.push(dayInfo);
+      // Memos
+      const dateStr=`${mr.year}-${String(mr.month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      memos.filter(m=>{
+        const s=m.startDate||'', du=m.due||'';
+        if(s&&du) return dateStr>=s&&dateStr<=du;
+        if(du) return dateStr===du;
+        return false;
+      }).forEach(m=>{
+        dayInfo.tasks.push({name:m.title,type:'일회성(프로젝트)',priority:priorityLabels[m.color]||'일반',done:!!m.done,tags:m.tags||[],body:m.body||'',startDate:m.startDate,dueDate:m.due});
+      });
+      if(dayInfo.tasks.length>0||lh) data.days.push(dayInfo);
     }
-    // Add memo summary
-    const memos=JSON.parse(localStorage.getItem('gpa_memos')||'[]');
-    if(memos.length){
-      data.memos=memos.map(m=>({title:m.title,priority:priorityLabels[m.color]||m.color,done:!!m.done,date:m.date}));
+    // Separate memo summary with full details
+    const monthStr=`${mr.year}-${String(mr.month+1).padStart(2,'0')}`;
+    const monthMemos=memos.filter(m=>{
+      const s=m.startDate||'', d=m.due||'';
+      return (s&&s.startsWith(monthStr))||(d&&d.startsWith(monthStr));
+    });
+    if(monthMemos.length){
+      data.memoSummary=monthMemos.map(m=>({title:m.title,body:m.body||'',priority:priorityLabels[m.color]||'일반',done:!!m.done,startDate:m.startDate||null,dueDate:m.due||null,tags:m.tags||[]}));
     }
+    data.leaveInfo=collectLeaveInfo(new Date(mr.year,mr.month,1),new Date(mr.year,mr.month,mr.days));
   }
 
-  // Build prompt text
-  let prompt=`# 개인 포트폴리오용 업무 성과 리포트 작성 요청\n\n`;
-  prompt+=`## 배경\n`;
+  // Build enhanced portfolio prompt
+  let prompt=`# 회계·경영지원 직무 포트폴리오용 업무 성과 리포트 작성 요청\n\n`;
+  prompt+=`## 작성자 정보\n`;
   prompt+=`- 회사: GPA KOREA\n`;
+  prompt+=`- 직무: 경영지원 (회계·재무·총무)\n`;
   prompt+=`- 리포트 유형: ${data.type} 업무 성과 리포트\n`;
   prompt+=`- 기간: ${data.period}\n`;
-  prompt+=`- 목적: **개인 포트폴리오 / 커리어 성과 기록**용\n\n`;
-  prompt+=`## 요청사항\n`;
-  prompt+=`아래 업무 데이터를 기반으로 전문적인 업무 성과 리포트를 **.docx 워드 파일**로 작성해주세요.\n\n`;
-  prompt+=`### 리포트 구성\n`;
-  prompt+=`1. **표지** - 제목, 기간, 작성자, 소속\n`;
-  prompt+=`2. **Executive Summary** - 핵심 성과 지표 요약 (달성률, 완료 건수 등)\n`;
-  prompt+=`3. **업무 성과 분석**\n`;
-  prompt+=`   - 카테고리별 성과 (일간/주간/월간 업무 달성률)\n`;
-  prompt+=`   - 시간대별 업무 분포 및 효율성 (오전/오후/퇴근전)\n`;
-  prompt+=`   - 주요 완료 업무 하이라이트\n`;
-  prompt+=`4. **업무 관리 역량 어필**\n`;
-  prompt+=`   - 체계적 업무 관리 능력 (자체 대시보드 구축·운영)\n`;
-  prompt+=`   - 데이터 기반 자기관리 역량\n`;
-  prompt+=`   - 일정 준수율 및 업무 처리 패턴 분석\n`;
-  prompt+=`5. **미완료 업무 분석 및 개선 계획**\n`;
-  prompt+=`   - 미완료 사유 분석\n`;
-  prompt+=`   - 자기 개선 방안\n`;
-  prompt+=`6. **다음 기간 목표 및 액션 플랜**\n\n`;
-  prompt+=`### 작성 톤 & 스타일\n`;
-  prompt+=`- 포트폴리오에 넣을 수 있는 깔끔하고 전문적인 문서\n`;
-  prompt+=`- 성과를 객관적 수치와 함께 어필하는 톤\n`;
-  prompt+=`- 표, 차트 설명, 볼드 강조 적극 활용\n`;
-  prompt+=`- 한국어로 작성하되, 섹션 제목은 영문 병기 가능\n\n`;
-  prompt+=`=== 업무 데이터 시작 ===\n`;
+  prompt+=`- 목적: **개인 커리어 포트폴리오** — 이직/승진/경력 어필용\n\n`;
+
+  prompt+=`## 핵심 요청사항\n`;
+  prompt+=`아래 업무 데이터를 기반으로, 회계·경영지원 직무자의 **전문 포트폴리오 리포트**를 **.docx 워드 파일**로 작성해주세요.\n`;
+  prompt+=`이 리포트는 면접관/인사담당자가 보고 "이 사람은 체계적이고 신뢰할 수 있는 실무자"라는 인상을 받을 수 있도록 작성되어야 합니다.\n\n`;
+
+  prompt+=`## 리포트 구성 (총 8개 섹션)\n\n`;
+
+  prompt+=`### 1. 표지 (Cover Page)\n`;
+  prompt+=`- 제목: "${data.type} 업무 성과 리포트 — ${data.period}"\n`;
+  prompt+=`- 부제: "GPA KOREA 경영지원팀 업무 성과 분석"\n`;
+  prompt+=`- 작성일, 작성자, 소속 표시\n`;
+  prompt+=`- 깔끔한 라인 구분선 활용\n\n`;
+
+  prompt+=`### 2. Executive Summary (핵심 성과 요약)\n`;
+  prompt+=`- 전체 달성률, 완료/미완료 건수를 **표로 요약**\n`;
+  prompt+=`- 일간(루틴)/주간(정기)/월간(마감)/일회성(프로젝트) 각각의 달성률\n`;
+  prompt+=`- 해당 기간 핵심 성과 **3줄 이내 불릿 포인트**\n`;
+  prompt+=`- 연차/휴일 정보도 반영하여 **실근무일 기준** 달성률 산출\n\n`;
+
+  prompt+=`### 3. 업무 체계 소개 (Task Management Framework)\n`;
+  prompt+=`- 자체 구축한 업무 관리 대시보드(GPA Task Clock) 소개\n`;
+  prompt+=`- HTML/JavaScript 기반 싱글페이지 대시보드를 직접 설계·개발\n`;
+  prompt+=`- 업무를 4가지 레이어로 체계적 분류: 일간 루틴 / 주간 정기 / 월간 마감 / 일회성 프로젝트\n`;
+  prompt+=`- 시계형 시각화, 캘린더 연동, 실시간 달성률 추적, 알림 시스템 구현\n`;
+  prompt+=`- AI(Claude) 연동 리포트 자동 생성 파이프라인 구축\n`;
+  prompt+=`- **어필 포인트**: 비개발 직군임에도 업무 효율화를 위해 기술을 활용하는 문제 해결 역량, 데이터 기반 자기관리\n\n`;
+
+  prompt+=`### 4. 정량적 성과 분석 (Quantitative Performance Analysis)\n`;
+  prompt+=`- **업무 유형별 달성률** — 일간/주간/월간/일회성 각각 표 + 바 차트 설명\n`;
+  prompt+=`- **시간대별 효율성** — 오전/오후/퇴근전 업무 분포 분석\n`;
+  prompt+=`- **일별 추이** — 요일별 달성률 패턴 (주간 리포트 시), 주차별 추이 (월간 리포트 시)\n`;
+  prompt+=`- **근태 반영 분석** — 연차/공휴일 제외 실근무일 기준 분석\n`;
+  prompt+=`- 수치마다 짧은 해석 코멘트를 달아서 단순 나열이 아닌 분석으로 보이게 할 것\n\n`;
+
+  prompt+=`### 5. 일회성 업무(프로젝트) 성과 분석 ⭐ (Ad-hoc & Project Tasks)\n`;
+  prompt+=`- **이 섹션이 가장 중요** — 일회성 업무는 정형화되지 않은 돌발 업무/프로젝트를 의미\n`;
+  prompt+=`- 각 일회성 업무별로:\n`;
+  prompt+=`  - 업무명, 기간(시작~마감), 완료 여부\n`;
+  prompt+=`  - 업무 설명(body)이 있으면 활용\n`;
+  prompt+=`  - **난이도/복잡도 추론** — 업무명과 기간으로 난이도를 추론하여 기술\n`;
+  prompt+=`  - **어필 포인트 생성** — 이 업무를 통해 보여줄 수 있는 역량을 기술 (예: 마감 준수력, 돌발 대응력, 멀티태스킹 등)\n`;
+  prompt+=`- 태그(tags)가 있으면 역량 키워드로 활용\n`;
+  prompt+=`- 회계/경영지원 직무 관점에서 해석 (예: 결산, 세무, 법인카드, 감사대응, 계약서, 비용처리 등)\n\n`;
+
+  prompt+=`### 6. 직무 역량 어필 (Core Competency Showcase)\n`;
+  prompt+=`다음 역량 카테고리별로 데이터 근거와 함께 서술:\n`;
+  prompt+=`- **업무 체계화 역량**: 자체 대시보드 구축, 4-레이어 업무 분류 체계\n`;
+  prompt+=`- **마감 준수율**: 월간 마감 업무 이행률, 일정 준수 패턴\n`;
+  prompt+=`- **멀티태스킹**: 루틴 업무와 프로젝트 업무를 동시 관리하는 능력\n`;
+  prompt+=`- **돌발 대응력**: 일회성 업무 처리 속도와 완료율\n`;
+  prompt+=`- **AI·디지털 활용 역량**: 2026년 회계 트렌드에 맞춰 AI를 업무에 실제 활용 (Claude 연동 리포트, 대시보드 자동화 등)\n`;
+  prompt+=`  → 참고: 2026년 회계업계는 "기록하는 회계"에서 "예측하고 결정하는 회계"로 전환 중이며, AI 도입률이 28%로 급증. 이런 트렌드를 반영하여 작성\n`;
+  prompt+=`- **데이터 리터러시**: 정량적 자기관리, KPI 기반 성과 측정 역량\n\n`;
+
+  prompt+=`### 7. 미완료 업무 분석 및 개선 전략 (Gap Analysis & Improvement Plan)\n`;
+  prompt+=`- 미완료 업무 리스트와 패턴 분석 (특정 요일/시간대 집중 여부)\n`;
+  prompt+=`- 근태(연차/반차) 고려한 실질 미달 분석\n`;
+  prompt+=`- **개선 액션 플랜** — 구체적이고 측정 가능한 개선 방안 3~5개\n`;
+  prompt+=`- 이 섹션은 "자기 성찰 능력"과 "성장 마인드셋"을 보여주는 것이 목적\n\n`;
+
+  prompt+=`### 8. 다음 기간 목표 및 로드맵 (Next Period Goals & Roadmap)\n`;
+  prompt+=`- 정량 목표 (예: 달성률 X% → Y% 목표)\n`;
+  prompt+=`- 정성 목표 (예: 특정 프로세스 개선, 신규 업무 도전 등)\n`;
+  prompt+=`- 업무 자동화/AI 활용 확대 계획\n\n`;
+
+  prompt+=`## 작성 가이드라인\n\n`;
+  prompt+=`### 톤 & 스타일\n`;
+  prompt+=`- **포트폴리오에 바로 넣을 수 있는** 완성도 높은 전문 문서\n`;
+  prompt+=`- 면접관이 읽을 것을 전제로, 성과를 **수치 + 맥락**으로 어필\n`;
+  prompt+=`- 과장하지 않되, 데이터를 최대한 활용하여 전문성을 보여줄 것\n`;
+  prompt+=`- 한국어로 작성, 섹션 제목은 영문 병기 (예: "업무 성과 분석 (Performance Analysis)")\n`;
+  prompt+=`- 표, 볼드, 불릿포인트를 적극 활용하되 과하지 않게\n\n`;
+
+  prompt+=`### 디자인 & 서식\n`;
+  prompt+=`- .docx 파일로 작성\n`;
+  prompt+=`- 전문적인 표지 (회사명, 부서, 기간, 작성일)\n`;
+  prompt+=`- 목차 포함\n`;
+  prompt+=`- 표는 깔끔하게 테두리 + 헤더 음영 처리\n`;
+  prompt+=`- 페이지 번호 포함\n`;
+  prompt+=`- 폰트: 본문 맑은 고딕 11pt, 제목 14~16pt\n\n`;
+
+  prompt+=`### 회계·경영지원 직무 특화 키워드 (적극 반영)\n`;
+  prompt+=`월 결산, 세무 신고, 전표 처리, 법인카드, 자금 관리, 매출/매입 관리, 감사 대응, 계약서 관리, 비용 정산, 급여/4대보험, ERP, 예산 관리, 내부 통제, 세금계산서, 부가세, 원천세, 법인세, 재무제표\n\n`;
+
+  prompt+=`=== 업무 데이터 (JSON) 시작 ===\n`;
   prompt+=JSON.stringify(data,null,2);
-  prompt+=`\n=== 업무 데이터 끝 ===`;
+  prompt+=`\n=== 업무 데이터 (JSON) 끝 ===`;
 
   navigator.clipboard.writeText(prompt).then(()=>{
-    showToast('🤖 Claude 데이터 복사 완료','Claude에게 붙여넣기하면 전문 리포트를 작성해줍니다!');
+    showToast('🤖 포트폴리오 프롬프트 복사 완료','Claude에게 붙여넣기하면 전문 포트폴리오 리포트를 작성해줍니다!');
   }).catch(()=>{
-    // Fallback: show in textarea
     const ta=document.createElement('textarea');
     ta.value=prompt;ta.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;font-size:12px;padding:20px;background:#1e293b;color:#e2e8f0;border:none';
     ta.setAttribute('readonly','');
@@ -2156,76 +2285,8 @@ function exportForClaude(){
   });
 }
 
-// ============ BACKUP & RESTORE ============
-function exportBackup(){
-  const backupData={_backupDate:new Date().toISOString(),_version:'1.0'};
-  for(let i=0;i<localStorage.length;i++){
-    const key=localStorage.key(i);
-    if(key.startsWith('gpa_')||key.startsWith('taskChecks_')||key.startsWith('monthlyChecks_')){
-      backupData[key]=localStorage.getItem(key);
-    }
-  }
-  const json=JSON.stringify(backupData,null,2);
-  const blob=new Blob([json],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  const dateStr=new Date().toISOString().slice(0,10);
-  a.href=url;a.download=`gpa-korea-backup-${dateStr}.json`;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  localStorage.setItem('gpa_last_backup',new Date().toISOString());
-  document.getElementById('backupReminder').style.display='none';
-  showToast('💾 백업 완료',`gpa-korea-backup-${dateStr}.json 파일로 저장되었습니다`);
-}
-
-function importBackup(){
-  document.getElementById('backupFileInput').click();
-}
-
-function handleBackupFile(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    try{
-      const data=JSON.parse(ev.target.result);
-      if(!data._backupDate){showToast('❌ 오류','올바른 백업 파일이 아닙니다');return;}
-      const dateLabel=data._backupDate.slice(0,10);
-      const keyCount=Object.keys(data).filter(k=>!k.startsWith('_')).length;
-      if(!confirm(`📂 백업 복원 확인\n\n백업 날짜: ${dateLabel}\n복원 항목: ${keyCount}개\n\n현재 데이터는 덮어써집니다.\n계속하시겠습니까?`))return;
-      let count=0;
-      for(const[key,value] of Object.entries(data)){
-        if(key.startsWith('_'))continue;
-        localStorage.setItem(key,value);count++;
-      }
-      showToast('📂 복원 완료',`${count}개 항목 복원. 2초 후 새로고침됩니다...`);
-      setTimeout(()=>location.reload(),2000);
-    }catch(err){showToast('❌ 오류','파일 읽기 실패: '+err.message);}
-  };
-  reader.readAsText(file);
-  e.target.value='';
-}
-
-function checkBackupReminder(){
-  const reminder=document.getElementById('backupReminder');
-  if(!reminder)return;
-  const lastBackup=localStorage.getItem('gpa_last_backup');
-  if(!lastBackup){
-    reminder.style.display='flex';
-    document.getElementById('backupReminderMsg').textContent='아직 한 번도 백업하지 않았습니다. 브라우저 캐시 삭제 시 모든 데이터가 손실됩니다!';
-    return;
-  }
-  const daysSince=(Date.now()-new Date(lastBackup))/(1000*60*60*24);
-  if(daysSince>=7){
-    reminder.style.display='flex';
-    const days=Math.floor(daysSince);
-    document.getElementById('backupReminderMsg').textContent=`마지막 백업 후 ${days}일이 지났습니다. 브라우저 캐시 삭제 시 데이터가 손실될 수 있습니다.`;
-  } else {
-    reminder.style.display='none';
-  }
-}
-
 // ============ RENDER ALL ============
-function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();checkWarnings();checkBackupReminder();}
+function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();checkWarnings();}
 renderAll();
 // Auto-select today on load
 selectDay(new Date().getDate());
