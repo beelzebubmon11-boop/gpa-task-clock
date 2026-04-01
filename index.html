@@ -381,6 +381,17 @@ select.form-input{cursor:pointer}
       </div>
     </div>
     <button class="report-btn" onclick="openReport()">📊 업무 리포트</button>
+    <div style="position:relative">
+      <button class="report-btn" onclick="toggleBackupPanel()" id="backupBtn">💾 백업</button>
+      <div class="notif-panel" id="backupPanel" style="width:280px">
+        <h4>💾 데이터 백업 / 복원</h4>
+        <p style="font-size:11px;color:#64748b;margin-bottom:12px">브라우저 데이터를 JSON으로 내보내거나, 이전 백업을 복원합니다.</p>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:8px;font-size:13px" onclick="exportBackup()">📥 백업 파일 다운로드</button>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:8px;font-size:13px;background:linear-gradient(135deg,#f59e0b,#f97316)" onclick="document.getElementById('restoreFile').click()">📤 백업 파일 복원</button>
+        <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importBackup(event)">
+        <div style="font-size:10px;color:#475569;margin-top:4px">⚠️ 복원 시 현재 데이터가 덮어씌워집니다</div>
+      </div>
+    </div>
     <div style="text-align:right">
       <div class="clock-display" id="liveClock">--:--:--</div>
       <div class="date-display" id="liveDate">---</div>
@@ -659,6 +670,17 @@ function toggleMonthlyTask(tid,y,m){
     if(Object.keys(merged).length)saveMonthlyChecks(y,mo,merged);
   }
 })();
+// Cleanup old localStorage data (older than 90 days)
+(function(){
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-90);
+  const keys=Object.keys(localStorage);
+  keys.forEach(k=>{
+    const m1=k.match(/^taskChecks_(\d+)-(\d+)-(\d+)$/);
+    if(m1){const d=new Date(+m1[1],+m1[2]-1,+m1[3]);if(d<cutoff)localStorage.removeItem(k);}
+    const m2=k.match(/^gpa_notif_sent_/);
+    if(m2){const parts=k.replace('gpa_notif_sent_','').split('-');if(parts.length===3){const d=new Date(+parts[0],+parts[1]-1,+parts[2]);if(d<cutoff)localStorage.removeItem(k);}}
+  });
+})();
 let todayKey=getTodayKey();
 let checkedTasks=getChecksForDate(todayKey);
 function saveChecks(){ saveChecksForDate(todayKey,checkedTasks); }
@@ -679,7 +701,7 @@ function updateClock() {
   const days=['일','월','화','수','목','금','토'];
   document.getElementById('liveDate').textContent=`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
 }
-setInterval(updateClock,1000); updateClock();
+setInterval(()=>{updateClock();const nk=getTodayKey();if(nk!==todayKey){todayKey=nk;checkedTasks=getChecksForDate(todayKey);currentMonth=new Date().getMonth();currentYear=new Date().getFullYear();renderAll();}},1000); updateClock();
 
 function drawTaskClock() {
   const svg=document.getElementById('clockSvg'),cx=140,cy=140,r=120,now=new Date(),hour=now.getHours(),min=now.getMinutes();
@@ -743,7 +765,7 @@ function renderDailyTasks() {
   if(dueMemos.length){
     html+=`<div class="time-group"><div class="time-group-title">📝 오늘/긴급 메모 (${dueMemos.length}건)</div>`;
     dueMemos.forEach(m=>{
-      html+=`<div class="task-item" onclick="switchTab('memo',document.querySelectorAll('.tab')[3])" style="cursor:pointer"><div class="task-priority priority-high"></div><div class="task-name">${m.title} <span class="period-badge">${formatDue(m.due)}</span></div><div class="task-time">메모</div></div>`;
+      html+=`<div class="task-item" onclick="switchTab('memo',document.querySelectorAll('.tab')[4])" style="cursor:pointer"><div class="task-priority priority-high"></div><div class="task-name">${m.title} <span class="period-badge">${formatDue(m.due)}</span></div><div class="task-time">메모</div></div>`;
     });
     html+=`</div>`;
   }
@@ -1532,8 +1554,14 @@ function renderMemoView(){
   else if(memoFilter==='pinned')filtered=filtered.filter(m=>m.pinned);
   else if(memoFilter.startsWith('tag:'))filtered=filtered.filter(m=>(m.tags||[]).includes(memoFilter.slice(4)));
 
-  // Sort: pinned first, then by created date
-  filtered.sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return new Date(b.createdAt)-new Date(a.createdAt);});
+  // Sort: pinned first, then by due date (nearest first) for active, by updated date for done, else by created date
+  filtered.sort((a,b)=>{
+    if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;
+    if(memoFilter==='done')return new Date(b.updatedAt||b.createdAt)-new Date(a.updatedAt||a.createdAt);
+    if(a.due&&b.due)return a.due.localeCompare(b.due);
+    if(a.due&&!b.due)return -1;if(!a.due&&b.due)return 1;
+    return new Date(b.createdAt)-new Date(a.createdAt);
+  });
 
   document.getElementById('memoCount').textContent=`${filtered.length}개 메모 (전체 ${memos.length}개)`;
 
@@ -2284,6 +2312,42 @@ function exportForClaude(){
     document.body.appendChild(ta);document.body.appendChild(closeBtn);
     ta.select();
   });
+}
+
+// ============ BACKUP / RESTORE ============
+function toggleBackupPanel(){
+  const panel=document.getElementById('backupPanel');panel.classList.toggle('show');
+}
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('backupPanel'),btn=document.getElementById('backupBtn');
+  if(panel&&!panel.contains(e.target)&&!btn.contains(e.target))panel.classList.remove('show');
+});
+function exportBackup(){
+  const data={};
+  Object.keys(localStorage).forEach(k=>{if(k.startsWith('gpa_')||k.startsWith('taskChecks_')||k.startsWith('monthlyChecks_'))data[k]=localStorage.getItem(k);});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  const d=new Date();a.download=`gpa-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click();URL.revokeObjectURL(a.href);
+  showToast('💾 백업 완료','백업 파일이 다운로드되었습니다');
+  document.getElementById('backupPanel').classList.remove('show');
+}
+function importBackup(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      const keys=Object.keys(data);
+      if(!keys.length||!keys.some(k=>k.startsWith('gpa_'))){showToast('❌','유효한 백업 파일이 아닙니다');return;}
+      keys.forEach(k=>localStorage.setItem(k,data[k]));
+      showToast('✅ 복원 완료','데이터가 복원되었습니다. 페이지를 새로고침합니다.');
+      setTimeout(()=>location.reload(),1500);
+    }catch(err){showToast('❌','파일 형식이 잘못되었습니다');}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+  document.getElementById('backupPanel').classList.remove('show');
 }
 
 // ============ RENDER ALL ============
