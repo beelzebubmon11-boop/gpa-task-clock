@@ -1595,8 +1595,8 @@ function renderOverview(){
   const todayDayKo=keyToDayName[todayDay]||'';
   const wt=weeklyTasks[todayDay]||[];
   const mt=monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day));
-  const activeMemos=memos.filter(m=>{if(!m.done)return true;const s=m.startDate||'',d=m.due||'';if(s&&d)return todayStr>=s&&todayStr<=d;if(d)return todayStr===d;if(s)return todayStr===s;return false;});
   const todayStr=now.toISOString().slice(0,10);
+  const activeMemos=memos.filter(m=>{if(!m.done)return true;const s=m.startDate||'',d=m.due||'';if(s&&d)return todayStr>=s&&todayStr<=d;if(d)return todayStr===d;if(s)return todayStr===s;return false;});
   const urgentMemos=memos.filter(m=>!m.done&&m.due&&m.due<=todayStr);
 
   // Counts (today's checks for daily/weekly, per-month for monthly)
