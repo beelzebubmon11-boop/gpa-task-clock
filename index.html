@@ -1073,7 +1073,7 @@ function openAddModal(preType){
   document.getElementById('btnDelete').style.display='none';
   document.getElementById('fName').value='';document.getElementById('fTime').value='';
   document.getElementById('fDay').value='';document.getElementById('fEndDay').value='';
-  document.getElementById('fMemoBody').value='';document.getElementById('fMemoStart').value='';document.getElementById('fMemoDue').value='';
+  const _todayISO=new Date().toISOString().slice(0,10);document.getElementById('fMemoBody').value='';document.getElementById('fMemoStart').value=_todayISO;document.getElementById('fMemoDue').value=_todayISO;
   document.getElementById('fMemoTags').value='';document.getElementById('fMemoPinned').checked=false;
   document.getElementById('fMemoColor').value='yellow';
   if(preType)document.getElementById('fType').value=preType;
@@ -1164,6 +1164,7 @@ function saveTask(){
     const body=document.getElementById('fMemoBody').value.trim();
     const startDate=document.getElementById('fMemoStart').value;
     const due=document.getElementById('fMemoDue').value;
+    if(!startDate&&!due){showToast('⚠️','시작일 또는 마감일을 입력하세요');return;}
     const color=document.getElementById('fMemoColor').value;
     const tags=document.getElementById('fMemoTags').value.split(',').map(s=>s.trim()).filter(Boolean);
     const pinned=document.getElementById('fMemoPinned').checked;
@@ -1594,7 +1595,7 @@ function renderOverview(){
   const todayDayKo=keyToDayName[todayDay]||'';
   const wt=weeklyTasks[todayDay]||[];
   const mt=monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day));
-  const activeMemos=memos.filter(m=>!m.done);
+  const activeMemos=memos.filter(m=>{if(!m.done)return true;const s=m.startDate||'',d=m.due||'';if(s&&d)return todayStr>=s&&todayStr<=d;if(d)return todayStr===d;if(s)return todayStr===s;return false;});
   const todayStr=now.toISOString().slice(0,10);
   const urgentMemos=memos.filter(m=>!m.done&&m.due&&m.due<=todayStr);
 
