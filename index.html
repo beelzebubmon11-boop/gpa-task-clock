@@ -188,6 +188,67 @@ svg text{font-family:'Segoe UI',sans-serif}
 .ov-timeline-dot.dot-warn{background:#f59e0b;border-color:#f59e0b}
 .ov-timeline-time{font-size:11px;color:#64748b;margin-bottom:4px}
 .ov-timeline-content{font-size:13px;color:#e2e8f0}
+.quick-add-panel{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:14px;margin-bottom:18px}
+.quick-add-main{display:flex;gap:8px}
+.quick-add-input{flex:1;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f8fafc;font-size:14px;padding:12px 14px;font-family:inherit;outline:none}
+.quick-add-input:focus{border-color:#38bdf8;box-shadow:0 0 0 3px #38bdf822}
+.quick-add-input::placeholder{color:#64748b}
+.quick-add-button{background:#38bdf8;border:none;color:#0f172a;border-radius:8px;padding:0 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.quick-add-button:hover{background:#7dd3fc}
+.quick-add-options{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+.quick-add-label{font-size:11px;color:#64748b;margin-right:2px}
+.quick-chip{background:#0f172a;border:1px solid #334155;color:#94a3b8;border-radius:999px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.quick-chip:hover{border-color:#475569;color:#e2e8f0}
+.quick-chip.active{background:#38bdf822;border-color:#38bdf8;color:#7dd3fc;font-weight:700}
+.management-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.management-card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:14px}
+.management-card.critical{border-color:#ef4444;background:#ef444414}
+.management-card.warning{border-color:#f59e0b;background:#f59e0b12}
+.management-card.info{border-color:#38bdf8;background:#38bdf812}
+.management-card .mg-label{font-size:11px;color:#94a3b8;margin-bottom:4px}
+.management-card .mg-value{font-size:26px;font-weight:800;color:#f8fafc}
+.management-card .mg-sub{font-size:11px;color:#64748b;margin-top:4px}
+.management-list{display:flex;flex-direction:column;gap:8px}
+.management-item{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s}
+.management-item:hover{border-color:#475569;transform:translateX(2px)}
+.management-item.critical{border-color:#ef444466}
+.management-item.warning{border-color:#f59e0b66}
+.management-item .mi-main{flex:1;min-width:0}
+.management-item .mi-title{font-size:13px;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.management-item .mi-meta{font-size:11px;color:#64748b;margin-top:3px}
+.management-badge{font-size:10px;padding:3px 8px;border-radius:999px;font-weight:700;flex-shrink:0}
+.management-badge.overdue{background:#ef4444;color:#fff}
+.management-badge.today{background:#f59e0b;color:#0f172a}
+.management-badge.upcoming{background:#38bdf822;color:#7dd3fc}
+.management-badge.inbox{background:#818cf822;color:#c4b5fd}
+.empty-management{background:#1e293b;border:1px dashed #334155;border-radius:12px;padding:24px;text-align:center;color:#64748b;font-size:13px}
+.calendar-page-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;margin-bottom:16px}
+.calendar-page-toolbar h2{font-size:20px;color:#f8fafc;margin-bottom:2px}
+.calendar-page-toolbar p{font-size:12px;color:#64748b}
+.calendar-page-toolbar button{background:#334155;border:none;color:#e2e8f0;border-radius:8px;padding:8px 14px;cursor:pointer;font-family:inherit}
+.calendar-page-toolbar button:hover{background:#475569}
+.calendar-page-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px}
+.calendar-board{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.calendar-board-head{font-size:12px;color:#64748b;text-align:center;padding:6px;font-weight:700}
+.calendar-board-day{min-height:118px;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:10px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:8px}
+.calendar-board-day:hover{border-color:#475569;transform:translateY(-1px)}
+.calendar-board-day.empty{background:transparent;border:none;cursor:default;transform:none}
+.calendar-board-day.today{border-color:#38bdf8}
+.calendar-board-day.selected{border-color:#818cf8;box-shadow:0 0 0 2px #818cf833}
+.calendar-board-day.has-risk{border-color:#f59e0b}
+.calendar-board-day.overdue{border-color:#ef4444}
+.calendar-board-date{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#f8fafc;font-weight:700}
+.calendar-board-count{font-size:11px;color:#94a3b8;background:#0f172a;border-radius:999px;padding:2px 7px}
+.calendar-board-preview{display:flex;flex-direction:column;gap:4px}
+.calendar-board-preview span{font-size:11px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calendar-agenda{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;align-self:start;position:sticky;top:16px}
+.calendar-agenda h3{font-size:15px;color:#f8fafc;margin-bottom:12px}
+.calendar-agenda-item{display:flex;align-items:center;gap:9px;background:#0f172a;border:1px solid #334155;border-radius:9px;padding:10px;margin-bottom:7px;cursor:pointer;transition:all .15s}
+.calendar-agenda-item:hover{border-color:#475569}
+.calendar-agenda-item.done{opacity:.5}
+.calendar-agenda-name{flex:1;font-size:13px;color:#e2e8f0}
+.calendar-agenda-item.done .calendar-agenda-name{text-decoration:line-through}
+.calendar-agenda-meta{font-size:10px;color:#64748b}
 
 /* Edit buttons for all views */
 .edit-btn-mini{background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;padding:2px 4px;border-radius:4px;opacity:0;transition:all .15s;flex-shrink:0}
@@ -341,7 +402,8 @@ select.form-input{cursor:pointer}
 .report-btn{background:linear-gradient(135deg,#38bdf8,#818cf8);border:none;color:#0f172a;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;transition:all .15s}
 .report-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(56,189,248,.3)}
 
-@media(max-width:1200px){.main{flex-direction:column}.sidebar{width:100%;min-width:auto;border-right:none;border-bottom:1px solid #334155}.stats-row{grid-template-columns:repeat(2,1fr)}.weekly-grid{grid-template-columns:repeat(3,1fr)}.monthly-grid{grid-template-columns:1fr}.clock-section{flex-direction:column}.clock-visual{width:100%;min-width:auto}}
+@media(max-width:1200px){.main{flex-direction:column}.sidebar{width:100%;min-width:auto;border-right:none;border-bottom:1px solid #334155}.stats-row,.management-grid{grid-template-columns:repeat(2,1fr)}.weekly-grid{grid-template-columns:repeat(3,1fr)}.monthly-grid{grid-template-columns:1fr}.clock-section{flex-direction:column}.clock-visual{width:100%;min-width:auto}.calendar-page-layout{grid-template-columns:1fr}.calendar-agenda{position:static}.calendar-board-day{min-height:92px}}
+@media(max-width:720px){.content{padding:16px}.tabs{width:100%;overflow-x:auto}.tab{white-space:nowrap;padding:9px 14px}.quick-add-main{flex-direction:column}.quick-add-button{height:42px}.stats-row,.management-grid{grid-template-columns:1fr}.calendar-board{gap:4px}.calendar-board-day{min-height:76px;padding:7px}.calendar-board-preview span:nth-child(n+2){display:none}}
 </style>
 </head>
 <body>
@@ -422,11 +484,29 @@ select.form-input{cursor:pointer}
   </div>
   <div class="content">
     <div class="tabs">
-      <button class="tab" onclick="switchTab('all',this)">🔍 전체 보기</button>
-      <button class="tab active" onclick="switchTab('daily',this)">📋 오늘의 업무</button>
-      <button class="tab" onclick="switchTab('weekly',this)">📅 주간 업무</button>
-      <button class="tab" onclick="switchTab('monthly',this)">🗓 월간 업무</button>
-      <button class="tab" onclick="switchTab('memo',this)">📝 메모</button>
+      <button class="tab active" data-tab="all" onclick="switchTab('all',this)">📊 대시보드</button>
+      <button class="tab" data-tab="daily" onclick="switchTab('daily',this)">📋 오늘 업무</button>
+      <button class="tab" data-tab="calendar" onclick="switchTab('calendar',this)">📆 달력</button>
+      <button class="tab" data-tab="weekly" onclick="switchTab('weekly',this)">📅 주간</button>
+      <button class="tab" data-tab="monthly" onclick="switchTab('monthly',this)">🗓 월간</button>
+      <button class="tab" data-tab="memo" onclick="switchTab('memo',this)">📝 인박스</button>
+    </div>
+    <div class="quick-add-panel">
+      <div class="quick-add-main">
+        <input id="quickTaskInput" class="quick-add-input" placeholder="업무를 바로 적고 Enter — 예: 김민수 후보자 1차 응답 #채용" onkeydown="handleQuickAddKey(event)">
+        <button class="quick-add-button" onclick="quickAddTask()">추가</button>
+      </div>
+      <div class="quick-add-options">
+        <span class="quick-add-label">기한</span>
+        <button class="quick-chip active" data-quick-due="today" onclick="setQuickDue('today')">오늘</button>
+        <button class="quick-chip" data-quick-due="tomorrow" onclick="setQuickDue('tomorrow')">내일</button>
+        <button class="quick-chip" data-quick-due="week" onclick="setQuickDue('week')">이번 주</button>
+        <button class="quick-chip" data-quick-due="none" onclick="setQuickDue('none')">기한 없음</button>
+        <span class="quick-add-label">중요도</span>
+        <button class="quick-chip active" data-quick-priority="yellow" onclick="setQuickPriority('yellow')">일반</button>
+        <button class="quick-chip" data-quick-priority="purple" onclick="setQuickPriority('purple')">중요</button>
+        <button class="quick-chip" data-quick-priority="red" onclick="setQuickPriority('red')">긴급</button>
+      </div>
     </div>
     <div id="warningContainer"></div>
     <div class="stats-row">
@@ -435,8 +515,25 @@ select.form-input{cursor:pointer}
       <div class="stat-card warning"><div class="label">이번 달 남은 업무</div><div class="value" id="statMonthly">-</div><div class="sub" id="statMonthlyNext">다음: -</div></div>
       <div class="stat-card"><div class="label">이번 주 진행률</div><div class="value" id="statWeekly">0%</div><div class="progress-bar"><div class="progress-fill fill-green" id="progressWeekly" style="width:0%"></div></div></div>
     </div>
-    <div id="allView" style="display:none"><div id="overviewContent"></div></div>
-    <div id="dailyView"><div class="clock-section"><div class="clock-visual"><svg id="clockSvg" viewBox="0 0 280 280" width="260" height="260"></svg></div><div class="task-section" id="dailyTasks"></div></div></div>
+    <div id="allView"><div id="overviewContent"></div></div>
+    <div id="dailyView" style="display:none"><div class="clock-section"><div class="clock-visual"><svg id="clockSvg" viewBox="0 0 280 280" width="260" height="260"></svg></div><div class="task-section" id="dailyTasks"></div></div></div>
+    <div id="calendarView" style="display:none">
+      <div class="calendar-page-toolbar">
+        <button onclick="changeMonth(-1)">◀</button>
+        <div>
+          <h2 id="calendarPageLabel"></h2>
+          <p>월간 마감, 주간 루틴, 일회성 인박스 업무를 한 화면에서 봅니다.</p>
+        </div>
+        <button onclick="changeMonth(1)">▶</button>
+      </div>
+      <div class="calendar-page-layout">
+        <div class="calendar-board" id="calendarBoardGrid"></div>
+        <div class="calendar-agenda">
+          <h3 id="calendarAgendaTitle">오늘 일정</h3>
+          <div id="calendarAgendaList"></div>
+        </div>
+      </div>
+    </div>
     <div id="weeklyView" style="display:none"><div class="weekly-grid" id="weeklyGrid"></div></div>
     <div id="monthlyView" style="display:none"><div class="monthly-grid" id="monthlyGrid"></div></div>
     <div id="memoView" style="display:none">
@@ -448,7 +545,7 @@ select.form-input{cursor:pointer}
 </div>
 
 <!-- FAB -->
-<button class="fab" onclick="openAddModal()" title="새 업무 추가">+</button>
+<button class="fab" onclick="openAddModal('memo')" title="새 업무 추가">+</button>
 
 <!-- Add/Edit Modal -->
 <div class="modal-overlay" id="modalOverlay">
@@ -693,6 +790,39 @@ function getWeekDates(){
   return dates;
 }
 let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
+let quickDueMode='today', quickPriority='yellow';
+let calendarPageSelectedDay=new Date().getDate();
+
+function toISODate(date){
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+function addDays(date,days){const d=new Date(date);d.setDate(d.getDate()+days);return d;}
+function getTodayISO(){return toISODate(new Date());}
+function parseDateKey(dateKey){
+  const [y,m,d]=dateKey.split('-').map(Number);
+  return new Date(y,m-1,d);
+}
+function getDueDateForQuickAdd(){
+  const now=new Date();
+  if(quickDueMode==='today')return getTodayISO();
+  if(quickDueMode==='tomorrow')return toISODate(addDays(now,1));
+  if(quickDueMode==='week')return toISODate(addDays(now,7));
+  return '';
+}
+function isMemoOnDate(m,dateStr){
+  const s=m.startDate||'', d=m.due||'';
+  if(s&&d)return dateStr>=s&&dateStr<=d;
+  if(d)return dateStr===d;
+  if(s)return dateStr>=s;
+  return false;
+}
+function isMemoActiveToday(m){
+  if(m.done)return false;
+  return isMemoOnDate(m,getTodayISO()) || (!m.startDate&&!m.due);
+}
+function getTabButton(tab){return document.querySelector(`.tab[data-tab="${tab}"]`);}
+function goTab(tab){switchTab(tab,getTabButton(tab));}
+function escJs(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
 
 // ============ CLOCK ============
 function updateClock() {
@@ -729,6 +859,53 @@ function copyOneTask(name){
   navigator.clipboard.writeText(name).then(()=>showToast('📋 복사 완료',`"${name}" 클립보드에 복사됨`));
 }
 
+function setQuickDue(mode){
+  quickDueMode=mode;
+  document.querySelectorAll('[data-quick-due]').forEach(btn=>btn.classList.toggle('active',btn.dataset.quickDue===mode));
+}
+function setQuickPriority(priority){
+  quickPriority=priority;
+  document.querySelectorAll('[data-quick-priority]').forEach(btn=>btn.classList.toggle('active',btn.dataset.quickPriority===priority));
+}
+function parseQuickTask(raw){
+  const tags=[];
+  const title=raw.replace(/#([^\s#]+)/g,(_,tag)=>{tags.push(tag);return '';}).replace(/\s+/g,' ').trim();
+  return {title,tags};
+}
+function handleQuickAddKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){
+    e.preventDefault();
+    quickAddTask();
+  }
+}
+function quickAddTask(){
+  const input=document.getElementById('quickTaskInput');
+  const raw=input.value.trim();
+  if(!raw){showToast('⚠️','추가할 업무를 입력하세요');return;}
+  const parsed=parseQuickTask(raw);
+  if(!parsed.title){showToast('⚠️','업무 제목을 입력하세요');return;}
+  const due=getDueDateForQuickAdd();
+  const startDate=due&&quickDueMode==='today'?getTodayISO():'';
+  const tags=parsed.tags.length?parsed.tags:['인박스'];
+  memos.unshift({
+    id:'memo_'+Date.now(),
+    title:parsed.title,
+    body:'',
+    startDate,
+    due,
+    color:quickPriority,
+    tags,
+    pinned:false,
+    done:false,
+    createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString()
+  });
+  saveData('memos',memos);
+  input.value='';
+  renderAll();
+  showToast('✅ 빠른 추가 완료',due?`${parsed.title} · ${formatDue(due)}`:`${parsed.title} · 인박스`);
+}
+
 // ============ DAILY VIEW ============
 function renderDailyTasks() {
   const container=document.getElementById('dailyTasks');
@@ -760,12 +937,12 @@ function renderDailyTasks() {
     html+=`</div>`;
   }
   // Memos due today or overdue
-  const todayStr=new Date().toISOString().slice(0,10);
+  const todayStr=getTodayISO();
   const dueMemos=memos.filter(m=>!m.done&&m.due&&m.due<=todayStr);
   if(dueMemos.length){
     html+=`<div class="time-group"><div class="time-group-title">📝 오늘/긴급 메모 (${dueMemos.length}건)</div>`;
     dueMemos.forEach(m=>{
-      html+=`<div class="task-item" onclick="switchTab('memo',document.querySelectorAll('.tab')[4])" style="cursor:pointer"><div class="task-priority priority-high"></div><div class="task-name">${m.title} <span class="period-badge">${formatDue(m.due)}</span></div><div class="task-time">메모</div></div>`;
+      html+=`<div class="task-item" onclick="goTab('memo')" style="cursor:pointer"><div class="task-priority priority-high"></div><div class="task-name">${m.title} <span class="period-badge">${formatDue(m.due)}</span></div><div class="task-time">메모</div></div>`;
     });
     html+=`</div>`;
   }
@@ -879,6 +1056,31 @@ function isLeaveOrHoliday(y,m,d){
   return null;
 }
 
+function getDayWorkSummary(y,m,day){
+  const selDate=new Date(y,m,day);
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const dateKey=getDateKey(y,m,day);
+  const dayChecks=getChecksForDate(dateKey);
+  const monthlyChecks=getMonthlyChecks(y,m);
+  const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const items=[];
+
+  dailyTasks.forEach(t=>items.push({type:'daily',name:t.name,time:t.time||'',checked:!!dayChecks[t.id],tid:t.id,dateKey}));
+  (weeklyTasks[dayMap[selDate.getDay()]]||[]).forEach(t=>items.push({type:'weekly',name:t.name,time:(t.days||[]).join('·'),checked:!!dayChecks[t.id],tid:t.id,dateKey}));
+  monthlyTasks.filter(mt=>day>=mt.day&&day<=(mt.endDay||mt.day)).forEach(mt=>{
+    mt.tasks.forEach((tn,i)=>{
+      const tid=`m_${mt.day}_${i}`,cat=categoryLabels[mt.category];
+      items.push({type:'monthly',name:tn,time:mt.period||`${mt.day}일`,checked:!!monthlyChecks[tid],tid,catLabel:cat.label,catClass:cat.class,year:y,month:m});
+    });
+  });
+  memos.filter(memo=>isMemoOnDate(memo,dateStr)).forEach(memo=>{
+    const time=memo.due===dateStr?'마감':memo.startDate===dateStr?'시작':memo.due?formatDue(memo.due):'진행중';
+    items.push({type:'memo',name:memo.title,time,checked:!!memo.done,tid:memo.id,color:memo.color||'yellow'});
+  });
+
+  return {items,total:items.length,done:items.filter(x=>x.checked).length,dateKey,dow:selDate.getDay()};
+}
+
 function renderLeaveList(){
   const container=document.getElementById('leaveList');
   // Show leaves for current calendar month
@@ -947,9 +1149,103 @@ function renderCalendar(){
   grid.innerHTML=html;
   renderLeaveList();
 }
-function changeMonth(d){currentMonth+=d;if(currentMonth>11){currentMonth=0;currentYear++;}if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();}
+function renderCalendarPage(){
+  const label=document.getElementById('calendarPageLabel');
+  const board=document.getElementById('calendarBoardGrid');
+  const agendaTitle=document.getElementById('calendarAgendaTitle');
+  const agendaList=document.getElementById('calendarAgendaList');
+  if(!label||!board||!agendaTitle||!agendaList)return;
+
+  label.textContent=`${currentYear}년 ${currentMonth+1}월`;
+  const fd=new Date(currentYear,currentMonth,1).getDay();
+  const dim=new Date(currentYear,currentMonth+1,0).getDate();
+  const now=new Date(),isCurrentMonth=now.getFullYear()===currentYear&&now.getMonth()===currentMonth;
+  if(calendarPageSelectedDay>dim)calendarPageSelectedDay=dim;
+  if(!calendarPageSelectedDay)calendarPageSelectedDay=isCurrentMonth?now.getDate():1;
+
+  let html='';
+  ['일','월','화','수','목','금','토'].forEach(d=>html+=`<div class="calendar-board-head">${d}</div>`);
+  for(let i=0;i<fd;i++)html+=`<div class="calendar-board-day empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const summary=getDayWorkSummary(currentYear,currentMonth,d);
+    const remaining=summary.total-summary.done;
+    const isToday=isCurrentMonth&&d===now.getDate();
+    const isSelected=d===calendarPageSelectedDay;
+    const dateObj=new Date(currentYear,currentMonth,d);
+    const isPast=dateObj<new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const lh=isLeaveOrHoliday(currentYear,currentMonth,d);
+    let cls='calendar-board-day';
+    if(isToday)cls+=' today';
+    if(isSelected)cls+=' selected';
+    if(remaining>0&&isPast)cls+=' overdue';
+    else if(remaining>0&&summary.total>0)cls+=' has-risk';
+    const preview=summary.items.filter(x=>!x.checked).slice(0,3).map(x=>`<span>${escHtml(x.name)}</span>`).join('');
+    html+=`<div class="${cls}" onclick="selectCalendarDay(${d})">
+      <div class="calendar-board-date"><span>${d}</span><span class="calendar-board-count">${summary.done}/${summary.total}</span></div>
+      ${lh?`<div class="calendar-board-count" style="width:max-content">${lh.label}</div>`:''}
+      <div class="calendar-board-preview">${preview||'<span style="color:#475569">등록 업무 없음</span>'}</div>
+    </div>`;
+  }
+  board.innerHTML=html;
+  renderCalendarAgenda(calendarPageSelectedDay);
+}
+
+function renderCalendarAgenda(day){
+  const agendaTitle=document.getElementById('calendarAgendaTitle');
+  const agendaList=document.getElementById('calendarAgendaList');
+  if(!agendaTitle||!agendaList)return;
+  const dayNames=['일','월','화','수','목','금','토'];
+  const summary=getDayWorkSummary(currentYear,currentMonth,day);
+  const isToday=new Date().toDateString()===new Date(currentYear,currentMonth,day).toDateString();
+  agendaTitle.textContent=`${currentMonth+1}월 ${day}일 (${dayNames[summary.dow]})${isToday?' · 오늘':''}`;
+  if(!summary.items.length){
+    agendaList.innerHTML='<div class="empty-management">이 날짜에 등록된 업무가 없습니다.</div>';
+    return;
+  }
+  const typeLabels={daily:'일간',weekly:'주간',monthly:'월간',memo:'인박스'};
+  let html=`<div class="day-detail-summary" style="margin-bottom:12px">
+    <div class="day-detail-stat"><div class="ds-val">${summary.total}</div><div class="ds-label">전체</div></div>
+    <div class="day-detail-stat"><div class="ds-val" style="color:#4ade80">${summary.done}</div><div class="ds-label">완료</div></div>
+    <div class="day-detail-stat"><div class="ds-val" style="color:#fbbf24">${summary.total-summary.done}</div><div class="ds-label">남은</div></div>
+  </div>`;
+  summary.items.forEach(it=>{
+    const action=it.type==='memo'?`toggleMemoDone('${it.tid}')`:it.type==='monthly'?`toggleMonthlyTask('${it.tid}',${currentYear},${currentMonth})`:`toggleTask('${it.tid}','${summary.dateKey}')`;
+    html+=`<div class="calendar-agenda-item ${it.checked?'done':''}" onclick="${action}">
+      <div class="mini-check ${it.checked?'checked':''}"></div>
+      <span class="ddi-type ddi-type-${it.type}">${typeLabels[it.type]}</span>
+      <span class="calendar-agenda-name">${escHtml(it.name)}</span>
+      ${it.time?`<span class="calendar-agenda-meta">${escHtml(it.time)}</span>`:''}
+    </div>`;
+  });
+  html+=`<div class="add-task-row" onclick="openAddModalForDate(${day})" style="margin-top:10px"><span class="plus">+</span> 이 날짜에 인박스 업무 추가</div>`;
+  agendaList.innerHTML=html;
+}
+
+function selectCalendarDay(day){
+  calendarPageSelectedDay=day;
+  selectDay(day);
+  renderCalendarPage();
+}
+
+function openAddModalForDate(day){
+  openAddModal('memo');
+  const iso=toISODate(new Date(currentYear,currentMonth,day));
+  document.getElementById('fMemoStart').value=iso;
+  document.getElementById('fMemoDue').value=iso;
+}
+
+function changeMonth(d){
+  currentMonth+=d;
+  if(currentMonth>11){currentMonth=0;currentYear++;}
+  if(currentMonth<0){currentMonth=11;currentYear--;}
+  const dim=new Date(currentYear,currentMonth+1,0).getDate();
+  if(calendarPageSelectedDay>dim)calendarPageSelectedDay=dim;
+  renderCalendar();
+  renderCalendarPage();
+}
 function selectDay(day){
   window._lastSelectedDay=day;
+  calendarPageSelectedDay=day;
   // Highlight selected day
   document.querySelectorAll('.cal-day.selected').forEach(el=>el.classList.remove('selected'));
   const allDays=document.querySelectorAll('.cal-day');
@@ -1049,6 +1345,8 @@ function selectDay(day){
     h+=`</div>`;
   }
   c.innerHTML=h;
+  const calendarView=document.getElementById('calendarView');
+  if(calendarView&&calendarView.style.display!=='none')renderCalendarPage();
 }
 
 // ============ STATS ============
@@ -1061,6 +1359,10 @@ function updateStats(){
   const curMC=getMonthlyChecks(now.getFullYear(),now.getMonth());
   monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day)).forEach(m=>{
     tot+=m.tasks.length;m.tasks.forEach((_,i)=>{if(curMC[`m_${m.day}_${i}`])done++;});
+  });
+  const todayStr=getTodayISO();
+  memos.filter(m=>isMemoOnDate(m,todayStr)).forEach(m=>{
+    tot++;if(m.done)done++;
   });
   document.getElementById('statToday').textContent=tot;document.getElementById('statDone').textContent=done;
   const p=tot>0?Math.round(done/tot*100):0;document.getElementById('statDonePercent').textContent=p+'%';document.getElementById('progressToday').style.width=p+'%';
@@ -1081,8 +1383,16 @@ function updateStats(){
 }
 
 // ============ TABS ============
-function switchTab(tab,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
-  document.getElementById('allView').style.display=tab==='all'?'':'none';document.getElementById('dailyView').style.display=tab==='daily'?'':'none';document.getElementById('weeklyView').style.display=tab==='weekly'?'':'none';document.getElementById('monthlyView').style.display=tab==='monthly'?'':'none';document.getElementById('memoView').style.display=tab==='memo'?'':'none';
+function switchTab(tab,el){
+  const target=el||getTabButton(tab);
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(target)target.classList.add('active');
+  document.getElementById('allView').style.display=tab==='all'?'':'none';
+  document.getElementById('dailyView').style.display=tab==='daily'?'':'none';
+  document.getElementById('calendarView').style.display=tab==='calendar'?'':'none';
+  document.getElementById('weeklyView').style.display=tab==='weekly'?'':'none';
+  document.getElementById('monthlyView').style.display=tab==='monthly'?'':'none';
+  document.getElementById('memoView').style.display=tab==='memo'?'':'none';
 }
 
 // ============ MODAL (Add / Edit) ============
@@ -1095,10 +1405,10 @@ function openAddModal(preType){
   document.getElementById('btnDelete').style.display='none';
   document.getElementById('fName').value='';document.getElementById('fTime').value='';
   document.getElementById('fDay').value='';document.getElementById('fEndDay').value='';
-  const _todayISO=new Date().toISOString().slice(0,10);document.getElementById('fMemoBody').value='';document.getElementById('fMemoStart').value=_todayISO;document.getElementById('fMemoDue').value=_todayISO;
+  const _todayISO=getTodayISO();document.getElementById('fMemoBody').value='';document.getElementById('fMemoStart').value=_todayISO;document.getElementById('fMemoDue').value=_todayISO;
   document.getElementById('fMemoTags').value='';document.getElementById('fMemoPinned').checked=false;
   document.getElementById('fMemoColor').value='yellow';
-  if(preType)document.getElementById('fType').value=preType;
+  document.getElementById('fType').value=preType||'memo';
   onTypeChange();
   document.querySelectorAll('#fDaysContainer input').forEach(cb=>cb.checked=false);
   document.getElementById('modalOverlay').classList.add('show');
@@ -1458,10 +1768,22 @@ function checkWarnings(){
     }
   });
 
+  // 2-1) Inbox memos: overdue or due today
+  const todayStr=getTodayISO();
+  memos.filter(m=>!m.done&&m.due&&m.due<=todayStr).forEach(m=>{
+    const overdue=m.due<todayStr;
+    warnings.push({
+      level:'critical', type:'memo', icon:overdue?'🚨':'📝',
+      text:overdue?`<strong>기한초과 인박스</strong> — ${escHtml(m.title)}`:`<strong>오늘 마감 인박스</strong> — ${escHtml(m.title)}`,
+      badge:overdue?'기한초과':'오늘마감', badgeClass:overdue?'wi-badge-overdue':'wi-badge-today'
+    });
+  });
+
   // 3) Weekly tasks: check previous weekdays (Mon-Fri) this week for uncompleted
   const weekDates=getWeekDates();
+  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   for(const[dk,wd] of Object.entries(weekDates)){
-    if(wd>=now)continue; // skip today and future
+    if(wd>=todayStart)continue; // skip today and future
     if(wd.getDay()===0||wd.getDay()===6)continue;
     // Skip if leave/holiday (full day leave, holiday, sick)
     const wdLeave=isLeaveOrHoliday(wd.getFullYear(),wd.getMonth(),wd.getDate());
@@ -1616,6 +1938,128 @@ function formatRelative(iso){
   return `${d.getMonth()+1}/${d.getDate()}`;
 }
 
+function openManagementItem(target,id,dateKey,day){
+  if(target==='memo'&&id){goTab('memo');openEditModal('memo',id);return;}
+  if(target==='calendar'&&day){goTab('calendar');selectCalendarDay(day);return;}
+  if(target==='weekly'){goTab('weekly');return;}
+  if(target==='daily'){goTab('daily');return;}
+  goTab('memo');
+}
+
+function getManagementSnapshot(){
+  const now=new Date(),today=now.getDate(),todayStr=getTodayISO();
+  const sevenDaysOut=toISODate(addDays(now,7));
+  const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
+  const dayNames=['일','월','화','수','목','금','토'];
+  const items=[];
+  const mc=getMonthlyChecks(now.getFullYear(),now.getMonth());
+
+  monthlyTasks.forEach(mt=>{
+    const endDay=mt.endDay||mt.day;
+    mt.tasks.forEach((tn,i)=>{
+      const tid=`m_${mt.day}_${i}`;
+      if(mc[tid])return;
+      const dueDate=toISODate(new Date(now.getFullYear(),now.getMonth(),endDay));
+      if(endDay<today){
+        items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일 · ${today-endDay}일 지남`,target:'calendar',day:endDay});
+      } else if(today>=mt.day&&today<=endDay){
+        const label=endDay===today?'오늘 마감':'진행중';
+        items.push({level:endDay===today?'critical':'warning',badge:label,badgeClass:'today',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일`,target:'calendar',day:today});
+      } else if(dueDate<=sevenDaysOut){
+        items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:tn,meta:`월간 · ${mt.day}일 · ${formatDue(dueDate)}`,target:'calendar',day:mt.day});
+      }
+    });
+  });
+
+  memos.filter(m=>!m.done).forEach(m=>{
+    if(m.due&&m.due<todayStr){
+      items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id});
+    } else if(m.due===todayStr){
+      items.push({level:'critical',badge:'오늘',badgeClass:'today',title:m.title,meta:`인박스 · 오늘 마감${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id});
+    } else if(m.due&&m.due<=sevenDaysOut){
+      items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id});
+    } else if(!m.due&&!m.startDate){
+      items.push({level:'warning',badge:'정리필요',badgeClass:'inbox',title:m.title,meta:`기한 없음 · 날짜를 잡아야 달력에 보입니다`,target:'memo',id:m.id});
+    }
+  });
+
+  const weekDates=getWeekDates();
+  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  for(const[dk,wd] of Object.entries(weekDates)){
+    if(wd>=todayStart)continue;
+    if(wd.getDay()===0||wd.getDay()===6)continue;
+    const wdLeave=isLeaveOrHoliday(wd.getFullYear(),wd.getMonth(),wd.getDate());
+    if(wdLeave&&['leave','holiday'].includes(wdLeave.type))continue;
+    const wdKey=getDateKey(wd.getFullYear(),wd.getMonth(),wd.getDate());
+    const wdChecks=getChecksForDate(wdKey);
+    (weeklyTasks[dk]||[]).filter(t=>!wdChecks[t.id]).forEach(t=>{
+      items.push({level:'warning',badge:'미완료',badgeClass:'today',title:t.name,meta:`주간 · ${dayNames[wd.getDay()]}요일(${wd.getMonth()+1}/${wd.getDate()})`,target:'weekly'});
+    });
+  }
+
+  if(now.getHours()>=12){
+    dailyTasks.filter(t=>t.timeSlot==='morning'&&!checkedTasks[t.id]).forEach(t=>{
+      items.push({level:'warning',badge:'오전 미완료',badgeClass:'today',title:t.name,meta:`오늘 업무 · ${t.time||'오전'}`,target:'daily'});
+    });
+  }
+  if(now.getHours()>=18){
+    dailyTasks.filter(t=>t.timeSlot==='evening'&&!checkedTasks[t.id]).forEach(t=>{
+      items.push({level:'warning',badge:'퇴근 전',badgeClass:'today',title:t.name,meta:`오늘 업무 · 퇴근 전 확인`,target:'daily'});
+    });
+  }
+
+  items.sort((a,b)=>{
+    const rank={critical:0,warning:1,info:2};
+    return rank[a.level]-rank[b.level];
+  });
+  return {
+    items,
+    critical:items.filter(x=>x.level==='critical').length,
+    warning:items.filter(x=>x.level==='warning').length,
+    upcoming:items.filter(x=>x.level==='info').length,
+    inbox:memos.filter(m=>!m.done&&!m.due&&!m.startDate).length
+  };
+}
+
+function renderManagementDashboard(){
+  const snapshot=getManagementSnapshot();
+  let html=`<div class="management-grid">
+    <div class="management-card ${snapshot.critical?'critical':'info'}"><div class="mg-label">놓치면 안 되는 일</div><div class="mg-value">${snapshot.critical}</div><div class="mg-sub">기한초과 또는 오늘 마감</div></div>
+    <div class="management-card ${snapshot.warning?'warning':''}"><div class="mg-label">관리 필요</div><div class="mg-value">${snapshot.warning}</div><div class="mg-sub">미완료·기한 미정·오전 지연</div></div>
+    <div class="management-card"><div class="mg-label">7일 내 예정</div><div class="mg-value">${snapshot.upcoming}</div><div class="mg-sub">이번 주 안에 보일 업무</div></div>
+    <div class="management-card ${snapshot.inbox?'warning':''}"><div class="mg-label">인박스 미정리</div><div class="mg-value">${snapshot.inbox}</div><div class="mg-sub">기한 없는 빠른 추가</div></div>
+  </div>`;
+
+  const focusItems=snapshot.items.filter(x=>x.level!=='info').slice(0,8);
+  html+=`<div class="overview-section"><div class="overview-section-header"><h3>🚦 놓치면 안 되는 일</h3><span class="ov-count">${focusItems.length}건</span><button class="ov-link" onclick="goTab('calendar')">달력 보기 →</button></div>`;
+  if(!focusItems.length){
+    html+=`<div class="empty-management">지금 당장 막힌 업무는 없습니다. 아래 타임라인과 7일 내 예정만 확인하면 됩니다.</div>`;
+  } else {
+    html+=`<div class="management-list">`;
+    focusItems.forEach(item=>{
+      html+=`<div class="management-item ${item.level}" onclick="openManagementItem('${item.target}','${escJs(item.id||'')}','',${item.day||0})">
+        <span class="management-badge ${item.badgeClass}">${item.badge}</span>
+        <div class="mi-main"><div class="mi-title">${escHtml(item.title)}</div><div class="mi-meta">${escHtml(item.meta)}</div></div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+
+  const upcoming=snapshot.items.filter(x=>x.level==='info').slice(0,6);
+  if(upcoming.length){
+    html+=`<div class="overview-section"><div class="overview-section-header"><h3>🗓 7일 내 예정</h3><span class="ov-count">${upcoming.length}건</span></div><div class="management-list">`;
+    upcoming.forEach(item=>{
+      html+=`<div class="management-item" onclick="openManagementItem('${item.target}','${escJs(item.id||'')}','',${item.day||0})">
+        <span class="management-badge ${item.badgeClass}">${item.badge}</span>
+        <div class="mi-main"><div class="mi-title">${escHtml(item.title)}</div><div class="mi-meta">${escHtml(item.meta)}</div></div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  }
+  return html;
+}
+
 // ============ OVERVIEW (ALL VIEW) ============
 function renderOverview(){
   const c=document.getElementById('overviewContent');
@@ -1623,8 +2067,8 @@ function renderOverview(){
   const todayDayKo=keyToDayName[todayDay]||'';
   const wt=weeklyTasks[todayDay]||[];
   const mt=monthlyTasks.filter(m=>today>=m.day&&today<=(m.endDay||m.day));
-  const todayStr=now.toISOString().slice(0,10);
-  const activeMemos=memos.filter(m=>{if(!m.done)return true;const s=m.startDate||'',d=m.due||'';if(s&&d)return todayStr>=s&&todayStr<=d;if(d)return todayStr===d;if(s)return todayStr===s;return false;});
+  const todayStr=getTodayISO();
+  const activeMemos=memos.filter(m=>!m.done&&isMemoActiveToday(m));
   const urgentMemos=memos.filter(m=>!m.done&&m.due&&m.due<=todayStr);
 
   // Counts (today's checks for daily/weekly, per-month for monthly)
@@ -1632,9 +2076,11 @@ function renderOverview(){
   const wTotal=wt.length, wDone=wt.filter(t=>checkedTasks[t.id]).length;
   const ovMC=getMonthlyChecks(now.getFullYear(),now.getMonth());
   let mTotal=0,mDone=0;mt.forEach(m=>{mTotal+=m.tasks.length;m.tasks.forEach((_,i)=>{if(ovMC[`m_${m.day}_${i}`])mDone++;});});
-  const allTotal=dTotal+wTotal+mTotal, allDone=dDone+wDone+mDone;
+  const memoToday=memos.filter(m=>isMemoOnDate(m,todayStr));
+  const memoTotal=memoToday.length, memoDone=memoToday.filter(m=>m.done).length;
+  const allTotal=dTotal+wTotal+mTotal+memoTotal, allDone=dDone+wDone+mDone+memoDone;
 
-  let html='';
+  let html=renderManagementDashboard();
 
   // Summary cards
   html+=`<div class="ov-summary-row">
@@ -1693,7 +2139,7 @@ function renderOverview(){
   // Urgent memos
   if(urgentMemos.length){
     html+=`<div class="ov-timeline-item"><div class="ov-timeline-dot dot-warn"></div><div class="ov-timeline-time">⚠️ 긴급 메모 (마감일 도래)</div><div class="ov-grid">`;
-    urgentMemos.forEach(m=>{html+=`<div class="ov-card" onclick="switchTab('memo',document.querySelectorAll('.tab')[4])"><span class="memo-color mc-${m.color||'yellow'}"></span><span class="ov-type-badge ov-type-memo">메모</span><span class="ov-card-name">${m.title}</span><span class="ov-card-sub">${formatDue(m.due)}</span></div>`;});
+    urgentMemos.forEach(m=>{html+=`<div class="ov-card" onclick="goTab('memo')"><span class="memo-color mc-${m.color||'yellow'}"></span><span class="ov-type-badge ov-type-memo">메모</span><span class="ov-card-name">${m.title}</span><span class="ov-card-sub">${formatDue(m.due)}</span></div>`;});
     html+=`</div></div>`;
   }
   html+=`</div></div>`;
@@ -1701,20 +2147,20 @@ function renderOverview(){
   // Upcoming monthly tasks
   const upcoming=monthlyTasks.filter(m=>m.day>today).slice(0,5);
   if(upcoming.length){
-    html+=`<div class="overview-section"><div class="overview-section-header"><h3>🗓 다가오는 월간 업무</h3><span class="ov-count">이번 달 ${monthlyTasks.filter(m=>m.day>today).length}건</span><button class="ov-link" onclick="switchTab('monthly',document.querySelectorAll('.tab')[3])">전체 보기 →</button></div><div class="ov-grid">`;
+    html+=`<div class="overview-section"><div class="overview-section-header"><h3>🗓 다가오는 월간 업무</h3><span class="ov-count">이번 달 ${monthlyTasks.filter(m=>m.day>today).length}건</span><button class="ov-link" onclick="goTab('monthly')">전체 보기 →</button></div><div class="ov-grid">`;
     upcoming.forEach(m=>{const cat=categoryLabels[m.category];const dd=m.day-today;m.tasks.forEach(tn=>{html+=`<div class="ov-card"><span class="ov-type-badge ov-type-monthly">${m.day}일</span><span class="ov-card-name">${tn} <span class="category ${cat.class}">${cat.label}</span></span><span class="ov-card-sub">D-${dd}</span></div>`;});});
     html+=`</div></div>`;
   }
 
   // Active memos (latest 4)
   if(activeMemos.length){
-    html+=`<div class="overview-section"><div class="overview-section-header"><h3>📝 최근 메모</h3><span class="ov-count">${activeMemos.length}건</span><button class="ov-link" onclick="switchTab('memo',document.querySelectorAll('.tab')[4])">전체 보기 →</button></div><div class="ov-grid">`;
-    activeMemos.slice(0,4).forEach(m=>{const tagsHtml=(m.tags||[]).slice(0,2).map(t=>`<span class="memo-tag">#${t}</span>`).join('');html+=`<div class="ov-card" onclick="switchTab('memo',document.querySelectorAll('.tab')[4])"><span class="memo-color mc-${m.color||'yellow'}"></span><span class="ov-type-badge ov-type-memo">메모</span><span class="ov-card-name">${m.title} ${tagsHtml}</span>${m.due?`<span class="ov-card-sub">${formatDue(m.due)}</span>`:''}</div>`;});
+    html+=`<div class="overview-section"><div class="overview-section-header"><h3>📝 최근 메모</h3><span class="ov-count">${activeMemos.length}건</span><button class="ov-link" onclick="goTab('memo')">전체 보기 →</button></div><div class="ov-grid">`;
+    activeMemos.slice(0,4).forEach(m=>{const tagsHtml=(m.tags||[]).slice(0,2).map(t=>`<span class="memo-tag">#${t}</span>`).join('');html+=`<div class="ov-card" onclick="goTab('memo')"><span class="memo-color mc-${m.color||'yellow'}"></span><span class="ov-type-badge ov-type-memo">메모</span><span class="ov-card-name">${m.title} ${tagsHtml}</span>${m.due?`<span class="ov-card-sub">${formatDue(m.due)}</span>`:''}</div>`;});
     html+=`</div></div>`;
   }
 
   // Full weekly overview
-  html+=`<div class="overview-section"><div class="overview-section-header"><h3>📅 이번 주 전체 업무</h3><button class="ov-link" onclick="switchTab('weekly',document.querySelectorAll('.tab')[2])">주간 보기 →</button></div>`;
+  html+=`<div class="overview-section"><div class="overview-section-header"><h3>📅 이번 주 전체 업무</h3><button class="ov-link" onclick="goTab('weekly')">주간 보기 →</button></div>`;
   html+=`<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">`;
   const dayOrder=['mon','tue','wed','thu','fri'];
   const ovWeekDates=getWeekDates();
@@ -2351,7 +2797,7 @@ function importBackup(e){
 }
 
 // ============ RENDER ALL ============
-function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();checkWarnings();}
+function renderAll(){renderOverview();renderDailyTasks();renderWeeklyView();renderMonthlyView();renderMemoView();renderCalendar();renderCalendarPage();checkWarnings();}
 renderAll();
 // Auto-select today on load
 selectDay(new Date().getDate());
