@@ -175,6 +175,10 @@ svg text{font-family:'Segoe UI',sans-serif}
 .ov-type-daily{background:#38bdf822;color:#38bdf8}.ov-type-weekly{background:#818cf822;color:#818cf8}.ov-type-monthly{background:#f59e0b22;color:#fbbf24}.ov-type-memo{background:#a78bfa22;color:#a78bfa}
 .ov-card-name{font-size:13px;flex:1;color:#e2e8f0}
 .ov-card-sub{font-size:11px;color:#64748b;flex-shrink:0}
+.dashboard-complete-btn{border:none;border-radius:7px;background:#22c55e22;color:#4ade80;border:1px solid #22c55e55;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.dashboard-complete-btn:hover{background:#22c55e;color:#052e16}
+.dashboard-complete-btn.done{background:#334155;border-color:#334155;color:#64748b;cursor:default}
+.dashboard-complete-btn.done:hover{background:#334155;color:#64748b}
 .ov-summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
 .ov-summary-card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;text-align:center}
 .ov-summary-card .ov-s-icon{font-size:24px;margin-bottom:4px}
@@ -216,6 +220,8 @@ svg text{font-family:'Segoe UI',sans-serif}
 .management-item .mi-main{flex:1;min-width:0}
 .management-item .mi-title{font-size:13px;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .management-item .mi-meta{font-size:11px;color:#64748b;margin-top:3px}
+.management-complete-btn{border:none;border-radius:7px;background:#22c55e22;color:#4ade80;border:1px solid #22c55e55;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.management-complete-btn:hover{background:#22c55e;color:#052e16}
 .management-badge{font-size:10px;padding:3px 8px;border-radius:999px;font-weight:700;flex-shrink:0}
 .management-badge.overdue{background:#ef4444;color:#fff}
 .management-badge.today{background:#f59e0b;color:#0f172a}
@@ -1946,6 +1952,66 @@ function openManagementItem(target,id,dateKey,day){
   goTab('memo');
 }
 
+function completeDashboardTask(type,id,dateKey,y,m){
+  if(!id)return;
+  if(type==='memo'){
+    const memo=memos.find(x=>x.id===id);
+    if(memo){memo.done=true;memo.updatedAt=new Date().toISOString();saveData('memos',memos);}
+  } else if(type==='monthly'){
+    const yy=Number.isInteger(y)?y:currentYear;
+    const mm=Number.isInteger(m)?m:currentMonth;
+    const checks=getMonthlyChecks(yy,mm);
+    checks[id]=true;
+    saveMonthlyChecks(yy,mm,checks);
+  } else {
+    const key=dateKey||todayKey;
+    const checks=getChecksForDate(key);
+    checks[id]=true;
+    saveChecksForDate(key,checks);
+    if(key===todayKey)checkedTasks=checks;
+  }
+  renderAll();
+  if(window._lastSelectedDay)selectDay(window._lastSelectedDay);
+  showToast('✅ 업무 완료','대시보드에서 완료 처리했습니다');
+}
+
+function addCompleteButton(el,type,id,dateKey,y,m,done,buttonClass){
+  if(!type||!id||el.querySelector('.'+buttonClass))return;
+  const btn=document.createElement('button');
+  btn.className=buttonClass+(done?' done':'');
+  btn.textContent=done?'완료됨':'완료';
+  btn.title=done?'이미 완료된 업무입니다':'이 업무를 완료 처리합니다';
+  btn.onclick=(event)=>{
+    event.stopPropagation();
+    if(done)return;
+    completeDashboardTask(type,id,dateKey,Number.isFinite(y)?y:null,Number.isFinite(m)?m:null);
+  };
+  el.appendChild(btn);
+}
+
+function decorateDashboardCompleteButtons(){
+  document.querySelectorAll('#overviewContent .ov-card').forEach(card=>{
+    let type=card.dataset.completeType||'', id=card.dataset.completeId||'', dateKey=card.dataset.completeDate||'';
+    let y=Number(card.dataset.completeYear), m=Number(card.dataset.completeMonth);
+    const onclick=card.getAttribute('onclick')||'';
+    if(!type){
+      const taskMatch=onclick.match(/toggleTask\('([^']+)'(?:,'([^']+)')?\)/);
+      const monthlyMatch=onclick.match(/toggleMonthlyTask\('([^']+)'(?:,(\d+),(\d+))?\)/);
+      if(taskMatch){type='daily';id=taskMatch[1];dateKey=taskMatch[2]||todayKey;}
+      else if(monthlyMatch){type='monthly';id=monthlyMatch[1];y=monthlyMatch[2]!==undefined?Number(monthlyMatch[2]):currentYear;m=monthlyMatch[3]!==undefined?Number(monthlyMatch[3]):currentMonth;}
+    }
+    addCompleteButton(card,type,id,dateKey,y,m,card.classList.contains('ov-checked'),'dashboard-complete-btn');
+  });
+  document.querySelectorAll('#overviewContent .management-item[data-complete-type]').forEach(item=>{
+    const y=Number(item.dataset.completeYear), m=Number(item.dataset.completeMonth);
+    addCompleteButton(item,item.dataset.completeType,item.dataset.completeId,item.dataset.completeDate,y,m,false,'management-complete-btn');
+  });
+}
+
+function managementCompleteAttrs(item){
+  if(!item.completeType)return '';
+  return `data-complete-type="${escHtml(item.completeType)}" data-complete-id="${escHtml(item.completeId||'')}" data-complete-date="${escHtml(item.completeDateKey||'')}" data-complete-year="${item.completeYear??''}" data-complete-month="${item.completeMonth??''}"`;
+}
 function getManagementSnapshot(){
   const now=new Date(),today=now.getDate(),todayStr=getTodayISO();
   const sevenDaysOut=toISODate(addDays(now,7));
@@ -1961,25 +2027,25 @@ function getManagementSnapshot(){
       if(mc[tid])return;
       const dueDate=toISODate(new Date(now.getFullYear(),now.getMonth(),endDay));
       if(endDay<today){
-        items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일 · ${today-endDay}일 지남`,target:'calendar',day:endDay});
+        items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일 · ${today-endDay}일 지남`,target:'calendar',day:endDay,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
       } else if(today>=mt.day&&today<=endDay){
         const label=endDay===today?'오늘 마감':'진행중';
-        items.push({level:endDay===today?'critical':'warning',badge:label,badgeClass:'today',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일`,target:'calendar',day:today});
+        items.push({level:endDay===today?'critical':'warning',badge:label,badgeClass:'today',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일`,target:'calendar',day:today,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
       } else if(dueDate<=sevenDaysOut){
-        items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:tn,meta:`월간 · ${mt.day}일 · ${formatDue(dueDate)}`,target:'calendar',day:mt.day});
+        items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:tn,meta:`월간 · ${mt.day}일 · ${formatDue(dueDate)}`,target:'calendar',day:mt.day,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
       }
     });
   });
 
   memos.filter(m=>!m.done).forEach(m=>{
     if(m.due&&m.due<todayStr){
-      items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id});
+      items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     } else if(m.due===todayStr){
-      items.push({level:'critical',badge:'오늘',badgeClass:'today',title:m.title,meta:`인박스 · 오늘 마감${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id});
+      items.push({level:'critical',badge:'오늘',badgeClass:'today',title:m.title,meta:`인박스 · 오늘 마감${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     } else if(m.due&&m.due<=sevenDaysOut){
-      items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id});
+      items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     } else if(!m.due&&!m.startDate){
-      items.push({level:'warning',badge:'정리필요',badgeClass:'inbox',title:m.title,meta:`기한 없음 · 날짜를 잡아야 달력에 보입니다`,target:'memo',id:m.id});
+      items.push({level:'warning',badge:'정리필요',badgeClass:'inbox',title:m.title,meta:`기한 없음 · 날짜를 잡아야 달력에 보입니다`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     }
   });
 
@@ -1993,18 +2059,18 @@ function getManagementSnapshot(){
     const wdKey=getDateKey(wd.getFullYear(),wd.getMonth(),wd.getDate());
     const wdChecks=getChecksForDate(wdKey);
     (weeklyTasks[dk]||[]).filter(t=>!wdChecks[t.id]).forEach(t=>{
-      items.push({level:'warning',badge:'미완료',badgeClass:'today',title:t.name,meta:`주간 · ${dayNames[wd.getDay()]}요일(${wd.getMonth()+1}/${wd.getDate()})`,target:'weekly'});
+      items.push({level:'warning',badge:'미완료',badgeClass:'today',title:t.name,meta:`주간 · ${dayNames[wd.getDay()]}요일(${wd.getMonth()+1}/${wd.getDate()})`,target:'weekly',completeType:'weekly',completeId:t.id,completeDateKey:wdKey});
     });
   }
 
   if(now.getHours()>=12){
     dailyTasks.filter(t=>t.timeSlot==='morning'&&!checkedTasks[t.id]).forEach(t=>{
-      items.push({level:'warning',badge:'오전 미완료',badgeClass:'today',title:t.name,meta:`오늘 업무 · ${t.time||'오전'}`,target:'daily'});
+      items.push({level:'warning',badge:'오전 미완료',badgeClass:'today',title:t.name,meta:`오늘 업무 · ${t.time||'오전'}`,target:'daily',completeType:'daily',completeId:t.id,completeDateKey:todayKey});
     });
   }
   if(now.getHours()>=18){
     dailyTasks.filter(t=>t.timeSlot==='evening'&&!checkedTasks[t.id]).forEach(t=>{
-      items.push({level:'warning',badge:'퇴근 전',badgeClass:'today',title:t.name,meta:`오늘 업무 · 퇴근 전 확인`,target:'daily'});
+      items.push({level:'warning',badge:'퇴근 전',badgeClass:'today',title:t.name,meta:`오늘 업무 · 퇴근 전 확인`,target:'daily',completeType:'daily',completeId:t.id,completeDateKey:todayKey});
     });
   }
 
@@ -2037,7 +2103,7 @@ function renderManagementDashboard(){
   } else {
     html+=`<div class="management-list">`;
     focusItems.forEach(item=>{
-      html+=`<div class="management-item ${item.level}" onclick="openManagementItem('${item.target}','${escJs(item.id||'')}','',${item.day||0})">
+      html+=`<div class="management-item ${item.level}" ${managementCompleteAttrs(item)} onclick="openManagementItem('${item.target}','${escJs(item.id||'')}','',${item.day||0})">
         <span class="management-badge ${item.badgeClass}">${item.badge}</span>
         <div class="mi-main"><div class="mi-title">${escHtml(item.title)}</div><div class="mi-meta">${escHtml(item.meta)}</div></div>
       </div>`;
@@ -2050,7 +2116,7 @@ function renderManagementDashboard(){
   if(upcoming.length){
     html+=`<div class="overview-section"><div class="overview-section-header"><h3>🗓 7일 내 예정</h3><span class="ov-count">${upcoming.length}건</span></div><div class="management-list">`;
     upcoming.forEach(item=>{
-      html+=`<div class="management-item" onclick="openManagementItem('${item.target}','${escJs(item.id||'')}','',${item.day||0})">
+      html+=`<div class="management-item" ${managementCompleteAttrs(item)} onclick="openManagementItem('${item.target}','${escJs(item.id||'')}','',${item.day||0})">
         <span class="management-badge ${item.badgeClass}">${item.badge}</span>
         <div class="mi-main"><div class="mi-title">${escHtml(item.title)}</div><div class="mi-meta">${escHtml(item.meta)}</div></div>
       </div>`;
@@ -2181,6 +2247,7 @@ function renderOverview(){
   html+=`</div></div>`;
 
   c.innerHTML=html;
+  decorateDashboardCompleteButtons();
 }
 
 // ============ REPORT SYSTEM ============
