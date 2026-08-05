@@ -2014,6 +2014,7 @@ function managementCompleteAttrs(item){
 }
 function getManagementSnapshot(){
   const now=new Date(),today=now.getDate(),todayStr=getTodayISO();
+  const fiveDaysOut=toISODate(addDays(now,5));
   const sevenDaysOut=toISODate(addDays(now,7));
   const dayMap=['sun','mon','tue','wed','thu','fri','sat'];
   const dayNames=['일','월','화','수','목','금','토'];
@@ -2027,23 +2028,23 @@ function getManagementSnapshot(){
       if(mc[tid])return;
       const dueDate=toISODate(new Date(now.getFullYear(),now.getMonth(),endDay));
       if(endDay<today){
-        items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일 · ${today-endDay}일 지남`,target:'calendar',day:endDay,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
+        items.push({level:'critical',mustShow:true,badge:'기한초과',badgeClass:'overdue',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일 · ${today-endDay}일 지남`,target:'calendar',day:endDay,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
       } else if(today>=mt.day&&today<=endDay){
         const label=endDay===today?'오늘 마감':'진행중';
-        items.push({level:endDay===today?'critical':'warning',badge:label,badgeClass:'today',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일`,target:'calendar',day:today,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
+        items.push({level:endDay===today?'critical':'warning',mustShow:dueDate<=fiveDaysOut,badge:label,badgeClass:'today',title:tn,meta:`월간 · ${mt.day}${endDay!==mt.day?'~'+endDay:''}일`,target:'calendar',day:today,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
       } else if(dueDate<=sevenDaysOut){
-        items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:tn,meta:`월간 · ${mt.day}일 · ${formatDue(dueDate)}`,target:'calendar',day:mt.day,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
+        items.push({level:'info',mustShow:dueDate<=fiveDaysOut,badge:'예정',badgeClass:'upcoming',title:tn,meta:`월간 · ${mt.day}일 · ${formatDue(dueDate)}`,target:'calendar',day:mt.day,completeType:'monthly',completeId:tid,completeYear:now.getFullYear(),completeMonth:now.getMonth()});
       }
     });
   });
 
   memos.filter(m=>!m.done).forEach(m=>{
     if(m.due&&m.due<todayStr){
-      items.push({level:'critical',badge:'기한초과',badgeClass:'overdue',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
+      items.push({level:'critical',mustShow:true,badge:'기한초과',badgeClass:'overdue',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     } else if(m.due===todayStr){
-      items.push({level:'critical',badge:'오늘',badgeClass:'today',title:m.title,meta:`인박스 · 오늘 마감${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
+      items.push({level:'critical',mustShow:true,badge:'오늘',badgeClass:'today',title:m.title,meta:`인박스 · 오늘 마감${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     } else if(m.due&&m.due<=sevenDaysOut){
-      items.push({level:'info',badge:'예정',badgeClass:'upcoming',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
+      items.push({level:'info',mustShow:m.due<=fiveDaysOut,badge:'예정',badgeClass:'upcoming',title:m.title,meta:`인박스 · ${formatDue(m.due)}${(m.tags||[]).length?' · #'+m.tags.slice(0,2).join(' #'):''}`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     } else if(!m.due&&!m.startDate){
       items.push({level:'warning',badge:'정리필요',badgeClass:'inbox',title:m.title,meta:`기한 없음 · 날짜를 잡아야 달력에 보입니다`,target:'memo',id:m.id,completeType:'memo',completeId:m.id});
     }
@@ -2081,6 +2082,7 @@ function getManagementSnapshot(){
   return {
     items,
     critical:items.filter(x=>x.level==='critical').length,
+    mustShow:items.filter(x=>x.mustShow).length,
     warning:items.filter(x=>x.level==='warning').length,
     upcoming:items.filter(x=>x.level==='info').length,
     inbox:memos.filter(m=>!m.done&&!m.due&&!m.startDate).length
@@ -2090,13 +2092,13 @@ function getManagementSnapshot(){
 function renderManagementDashboard(){
   const snapshot=getManagementSnapshot();
   let html=`<div class="management-grid">
-    <div class="management-card ${snapshot.critical?'critical':'info'}"><div class="mg-label">놓치면 안 되는 일</div><div class="mg-value">${snapshot.critical}</div><div class="mg-sub">기한초과 또는 오늘 마감</div></div>
+    <div class="management-card ${snapshot.mustShow?'critical':'info'}"><div class="mg-label">놓치면 안 되는 일</div><div class="mg-value">${snapshot.mustShow}</div><div class="mg-sub">기한초과 또는 5일 내 마감</div></div>
     <div class="management-card ${snapshot.warning?'warning':''}"><div class="mg-label">관리 필요</div><div class="mg-value">${snapshot.warning}</div><div class="mg-sub">미완료·기한 미정·오전 지연</div></div>
     <div class="management-card"><div class="mg-label">7일 내 예정</div><div class="mg-value">${snapshot.upcoming}</div><div class="mg-sub">이번 주 안에 보일 업무</div></div>
     <div class="management-card ${snapshot.inbox?'warning':''}"><div class="mg-label">인박스 미정리</div><div class="mg-value">${snapshot.inbox}</div><div class="mg-sub">기한 없는 빠른 추가</div></div>
   </div>`;
 
-  const focusItems=snapshot.items.filter(x=>x.level!=='info').slice(0,8);
+  const focusItems=snapshot.items.filter(x=>x.level!=='info'||x.mustShow);
   html+=`<div class="overview-section"><div class="overview-section-header"><h3>🚦 놓치면 안 되는 일</h3><span class="ov-count">${focusItems.length}건</span><button class="ov-link" onclick="goTab('calendar')">달력 보기 →</button></div>`;
   if(!focusItems.length){
     html+=`<div class="empty-management">지금 당장 막힌 업무는 없습니다. 아래 타임라인과 7일 내 예정만 확인하면 됩니다.</div>`;
@@ -2112,7 +2114,7 @@ function renderManagementDashboard(){
   }
   html+=`</div>`;
 
-  const upcoming=snapshot.items.filter(x=>x.level==='info').slice(0,6);
+  const upcoming=snapshot.items.filter(x=>x.level==='info'&&!x.mustShow).slice(0,6);
   if(upcoming.length){
     html+=`<div class="overview-section"><div class="overview-section-header"><h3>🗓 7일 내 예정</h3><span class="ov-count">${upcoming.length}건</span></div><div class="management-list">`;
     upcoming.forEach(item=>{
